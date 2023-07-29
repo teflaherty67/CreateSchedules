@@ -1,0 +1,60 @@
+﻿<Window x:Class="CreateSchedules.frmCreateSchedules"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CreateSchedules"
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="440" Title="Create Schedules" MinWidth="400" MinHeight="380">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="55"/>
+            <RowDefinition Height="55"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="90"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="100"/>
+        </Grid.ColumnDefinitions>
+        <GroupBox Header="Elevation Designation:" BorderThickness="0">
+            <ComboBox x:Name="cmbElevation" Height="25" Width="100" HorizontalAlignment="Left"/>
+        </GroupBox>
+        <GroupBox Grid.Row="1" BorderThickness="0" Header="Number of Floors:">
+            <ComboBox x:Name="cmbFloors" Height="25" Width="100" HorizontalAlignment="Left"/>
+        </GroupBox>
+        <StackPanel Grid.Column="1" Grid.RowSpan="2" VerticalAlignment="Center">
+            <Button x:Name="btnAll" Width="90" Height="25" Content="Chcek All" HorizontalAlignment="Right" Click="btnAll_Click"/>
+            <Button x:Name="btnNone" Content="Check None" Width="90" Height="25" HorizontalAlignment="Right" Click="btnNone_Click" Margin="0,10,0,0"/>
+        </StackPanel>
+        <Label Grid.Row="2" Content="Foundation Type:" VerticalAlignment="Center"/>
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left" Grid.ColumnSpan="2" VerticalAlignment="Center" Margin="20,0,0,0">
+            <RadioButton x:Name="rbBasement" Content="Basement" Width="80" VerticalAlignment="Top" Height="20" GroupName="Group1" HorizontalAlignment="Left"/>
+            <RadioButton x:Name="rbCrawlspace" VerticalAlignment="Top" Width="90" Height="20" Content="Crawlspace" GroupName="Group1"/>
+            <RadioButton x:Name="rbSlab" Width="50" Height="20" VerticalAlignment="Top" Content="Slab" GroupName="Group1" IsChecked="True"/>
+        </StackPanel>
+        <Label Grid.Row="4" Content="Schedules to Create:" VerticalAlignment="Center"/>
+        <StackPanel Grid.Row="5">
+            <CheckBox x:Name="chbIndex" Margin="30,0,0,3" Content="Sheet Index"/>
+            <CheckBox x:Name="chbVeneer" Margin="30,0,0,3" Content="Veneer Calculations"/>
+            <CheckBox x:Name="chbFloor" Margin="30,0,0,3" Content="Floor Areas"/>
+            <CheckBox x:Name="chbFrame" Margin="30,0,0,3" Content="Frame Areas"/>
+            <CheckBox x:Name="chbAttic" Margin="30,0,0,3" Content="Attic Areas"/>
+        </StackPanel>
+        <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="60,2,0,0">
+            <RadioButton x:Name="rbSingle" Content="Single-Space" GroupName="Group2" IsChecked="True"/>
+            <RadioButton x:Name="rbMulti" Content="Multi-Space" Margin="10,0,0,0" GroupName="Group2"/>
+        </StackPanel>
+        <StackPanel Grid.Row="10" Grid.ColumnSpan="2" HorizontalAlignment="Right" Orientation="Horizontal">
+            <Button x:Name="btnOK" Width="90" Height="25" Content="OK" Margin="0,0,10,0" Click="btnOK_Click"/>
+            <Button x:Name="btnCancel" Width="90" Height="25" Content="Cancel" Click="btnCancel_Click" Margin="0,0,10,0"/>
+            <Button x:Name="btnHelp" Width="90" Height="25" Content="Help" Click="btnHelp_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
+

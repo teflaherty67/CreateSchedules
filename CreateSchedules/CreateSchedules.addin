@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Command">
+    <Text>Command CreateSchedules</Text>
+    <Description>Some description for CreateSchedules</Description>
+    <Assembly>CreateSchedules.dll</Assembly>
+    <FullClassName>CreateSchedules.cmdCreateSchedules</FullClassName>
+    <ClientId>ef5c1cf0-9777-4186-b405-0c84f03baed2</ClientId>
+    <VendorId>com.YOUR COMPANY NAME</VendorId>
+    <VendorDescription>YOUR COMPANY NAME, YOUR COMPANY URL</VendorDescription>
+  </AddIn>
+  <AddIn Type="Application">
+    <Name>Application CreateSchedules</Name>
+    <Assembly>CreateSchedules.dll</Assembly>
+    <FullClassName>CreateSchedules.App</FullClassName>
+    <ClientId>53e07b09-5b4b-4b20-9b8b-abe027d503b9</ClientId>
+    <VendorId>com.YOUR COMPANY NAME</VendorId>
+    <VendorDescription>YOUR COMPANY NAME, YOUR COMPANY URL</VendorDescription>
+  </AddIn>
+</RevitAddIns>
