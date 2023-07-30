@@ -26,7 +26,7 @@ namespace CreateSchedules
             UIApplication uiapp = commandData.Application;
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
-            Document doc = uidoc.Document;
+            Document curDoc = uidoc.Document;
 
             frmCreateSchedules curForm = new frmCreateSchedules()
             {
@@ -54,29 +54,40 @@ namespace CreateSchedules
 
             // start the transaction
 
-            using (Transaction t = new Transaction(doc))
+            using (Transaction t = new Transaction(curDoc))
             {
                 t.Start("Create Schedules");
 
                 // check to see if the sheet index exists
 
-                ViewSchedule schedIndex = Utils.GetScheduleByNameContains(doc, "Sheet Index - Elevation " + Globals.ElevDesignation);
+                ViewSchedule schedIndex = Utils.GetScheduleByNameContains(curDoc, "Sheet Index - Elevation " + Globals.ElevDesignation);
 
                 if (chbIndexResult == true)
                 {
                     if (schedIndex == null)
                     {
                         // duplicate the first schedule found with Sheet Index in the name
-                        List<ViewSchedule> listSched = Utils.GetAllScheduleByNameContains(doc, "Sheet Index");
+                        List<ViewSchedule> listSched = Utils.GetAllScheduleByNameContains(curDoc, "Sheet Index");
 
                         ViewSchedule dupSched = listSched.FirstOrDefault();
 
-                        Element viewSched = doc.GetElement(dupSched.Duplicate(ViewDuplicateOption.Duplicate));
+                        Element viewSched = curDoc.GetElement(dupSched.Duplicate(ViewDuplicateOption.Duplicate));
+
+                        // rename the duplicated schedule to the new elevation
 
                         string originalName = viewSched.Name;
+                        string[] schedTitle = originalName.Split('C');
 
-                    // set the design option to the specified elevation designation
+                        string curTitle = schedTitle[0];
 
+                        string lastChar = curTitle.Substring(curTitle.Length - 2);
+                        string newLast = Globals.ElevDesignation.ToString();
+
+                        viewSched.Name = curTitle.Replace(lastChar, newLast);
+
+                        // set the design option to the specified elevation designation
+
+                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation " + lastChar);
                     }
                 }
 
@@ -86,7 +97,7 @@ namespace CreateSchedules
                 {
                     // set the variable for the floor Area Scheme name
 
-                    AreaScheme schemeFloor = Utils.GetAreaSchemeByName(doc, Globals.ElevDesignation + " Floor");
+                    AreaScheme schemeFloor = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Floor");
 
                     if (schemeFloor == null)
                     {
@@ -102,7 +113,7 @@ namespace CreateSchedules
                     {
                         // set some variables
 
-                        ViewPlan areaFloorView = Utils.GetAreaPlanByViewFamilyName(doc, Globals.ElevDesignation + " Floor");
+                        ViewPlan areaFloorView = Utils.GetAreaPlanByViewFamilyName(curDoc, Globals.ElevDesignation + " Floor");
 
                         // if not, create the area plans
 
@@ -119,7 +130,7 @@ namespace CreateSchedules
                                 levelWord = "Level";
                             }
 
-                            List<Level> levelList = Utils.GetLevelByNameContains(doc, levelWord);
+                            List<Level> levelList = Utils.GetLevelByNameContains(curDoc, levelWord);
 
                             ElementId schemeFloorId = schemeFloor.Id;
 
@@ -131,9 +142,9 @@ namespace CreateSchedules
                             {
                                 ElementId curLevelId = curlevel.Id;
 
-                                View vtFloorAreas = Utils.GetViewTemplateByName(doc, "10-Floor Area");
+                                View vtFloorAreas = Utils.GetViewTemplateByName(curDoc, "10-Floor Area");
 
-                                ViewPlan areaFloor = ViewPlan.CreateAreaPlan(doc, schemeFloorId, curLevelId);
+                                ViewPlan areaFloor = ViewPlan.CreateAreaPlan(curDoc, schemeFloorId, curLevelId);
                                 areaFloor.Name = "Floor_" + countFloor.ToString();
                                 areaFloor.ViewTemplateId = vtFloorAreas.Id;
 
@@ -163,41 +174,41 @@ namespace CreateSchedules
 
                                         XYZ insStart = new XYZ(0, 0, 0);
 
-                                        double calcOffset = 1.0 * doc.ActiveView.Scale;
+                                        double calcOffset = 1.0 * curDoc.ActiveView.Scale;
 
                                         XYZ offset = new XYZ(0, calcOffset, 0);
 
                                         UV insPoint = new UV(insStart.X, insStart.Y);
 
-                                        Area areaLiving1 = doc.Create.NewArea(areaFloor, insPoint);
+                                        Area areaLiving1 = curDoc.Create.NewArea(areaFloor, insPoint);
                                         areaLiving1.Number = "1";
                                         areaLiving1.Name = "Living";
 
-                                        Area areaGarage = doc.Create.NewArea(areaFloor, insPoint);
+                                        Area areaGarage = curDoc.Create.NewArea(areaFloor, insPoint);
                                         areaGarage.Number = "2";
                                         areaGarage.Name = "Garage";
 
-                                        Area areaCoveredPatio = doc.Create.NewArea(areaFloor, insPoint);
+                                        Area areaCoveredPatio = curDoc.Create.NewArea(areaFloor, insPoint);
                                         areaCoveredPatio.Number = "3";
                                         areaCoveredPatio.Name = "Covered Patio";
 
-                                        Area areaCoveredPorch = doc.Create.NewArea(areaFloor, insPoint);
+                                        Area areaCoveredPorch = curDoc.Create.NewArea(areaFloor, insPoint);
                                         areaCoveredPorch.Number = "4";
                                         areaCoveredPorch.Name = "Covered Porch";
 
-                                        Area areaPorteCochere = doc.Create.NewArea(areaFloor, insPoint);
+                                        Area areaPorteCochere = curDoc.Create.NewArea(areaFloor, insPoint);
                                         areaPorteCochere.Number = "5";
                                         areaPorteCochere.Name = "Porte Cochere";
 
-                                        Area areaPatio = doc.Create.NewArea(areaFloor, insPoint);
+                                        Area areaPatio = curDoc.Create.NewArea(areaFloor, insPoint);
                                         areaPatio.Number = "6";
                                         areaPatio.Name = "Patio";
 
-                                        Area areaPorch = doc.Create.NewArea(areaFloor, insPoint);
+                                        Area areaPorch = curDoc.Create.NewArea(areaFloor, insPoint);
                                         areaPorch.Number = "7";
                                         areaPorch.Name = "Porch";
 
-                                        Area areaOption1 = doc.Create.NewArea(areaFloor, insPoint);
+                                        Area areaOption1 = curDoc.Create.NewArea(areaFloor, insPoint);
                                         areaOption1.Number = "8";
                                         areaOption1.Name = "Option";
 
@@ -215,27 +226,27 @@ namespace CreateSchedules
 
                         ElementId areaCategoryId = new ElementId(BuiltInCategory.OST_Areas);
 
-                        AreaScheme curAreaScheme = Utils.GetAreaSchemeByName(doc, Globals.ElevDesignation + " Floor");
-                        ViewSchedule newFloorSched = Utils.CreateAreaSchedule(doc, "Floor Areas - Elevation " + Globals.ElevDesignation, curAreaScheme);
+                        AreaScheme curAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Floor");
+                        ViewSchedule newFloorSched = Utils.CreateAreaSchedule(curDoc, "Floor Areas - Elevation " + Globals.ElevDesignation, curAreaScheme);
 
                         if (areaFloorView != null)
                         {
                             if (floorNum == 1)
                             {
                                 List<string> paramNames = new List<string>() { "Area Category", "Comments", "Name", "Area", "Number" };
-                                List<Parameter> paramsFloorSingle = Utils.GetParametersByName(doc, paramNames);
+                                List<Parameter> paramsFloorSingle = Utils.GetParametersByName(curDoc, paramNames);
 
-                                Utils.AddFieldsToSchedule(doc, newFloorSched, paramsFloorSingle);
+                                Utils.AddFieldsToSchedule(curDoc, newFloorSched, paramsFloorSingle);
 
                                 // find the fields
 
-                                //ScheduleField catField = Utils.FindScheduleField(newFloorSched, paramsFloorSingle[0]);
+                                ScheduleField catField = Utils.FindScheduleField(newFloorSched, paramsFloorSingle[0]);
 
-                                //ScheduleField catField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorSingle[0].Id);
-                                //ScheduleField commentField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorSingle[1].Id);
-                                //ScheduleField nameField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorSingle[2].Id);
-                                //ScheduleField areaField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorSingle[3].Id);
-                                //ScheduleField numField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorSingle[4].Id);
+                                ScheduleField catField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorSingle[0].Id);
+                                ScheduleField commentField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorSingle[1].Id);
+                                ScheduleField nameField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorSingle[2].Id);
+                                ScheduleField areaField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorSingle[3].Id);
+                                ScheduleField numField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorSingle[4].Id);
 
 
                                 // set the filters
@@ -252,16 +263,16 @@ namespace CreateSchedules
                             else if (floorNum == 2 || floorNum == 3)
                             {
                                 List<string> paramNames = new List<string>() { "Area Category", "Comments", "Level", "Name", "Area", "Number" };
-                                List<Parameter> paramsFloorMulti = Utils.GetParametersByName(doc, paramNames);
+                                List<Parameter> paramsFloorMulti = Utils.GetParametersByName(curDoc, paramNames);
 
-                                Utils.AddFieldsToSchedule(doc, newFloorSched, paramsFloorMulti);
+                                Utils.AddFieldsToSchedule(curDoc, newFloorSched, paramsFloorMulti);
 
-                                //ScheduleField catField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[0].Id);
-                                //ScheduleField commentField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[1].Id);
-                                //ScheduleField levelField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[1].Id);
-                                //ScheduleField nameField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[3].Id);
-                                //ScheduleField areaField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[4].Id);
-                                //ScheduleField numField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[5].Id);
+                                ScheduleField catField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[0].Id);
+                                ScheduleField commentField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[1].Id);
+                                ScheduleField levelField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[1].Id);
+                                ScheduleField nameField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[3].Id);
+                                ScheduleField areaField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[4].Id);
+                                ScheduleField numField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[5].Id);
 
                                 //ScheduleFilter catFilter = new ScheduleFilter(catField.FieldId, ScheduleFilterType.Contains, "Options");
                                 //ScheduleFilter areaFilter = new ScheduleFilter(areaField.FieldId, ScheduleFilterType.GreaterThan, "0 SF");
@@ -281,7 +292,7 @@ namespace CreateSchedules
                 {
                     // set the variable for the frame Area Scheme name
 
-                    AreaScheme schemeFrame = Utils.GetAreaSchemeByName(doc, Globals.ElevDesignation + " Frame");
+                    AreaScheme schemeFrame = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Frame");
 
                     if (schemeFrame == null)
                     {
@@ -303,7 +314,7 @@ namespace CreateSchedules
                 {
                     // set the variable for the frame Area Scheme name
 
-                    AreaScheme schemeAttic = Utils.GetAreaSchemeByName(doc, Globals.ElevDesignation + " Roof Ventilation");
+                    AreaScheme schemeAttic = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Roof Ventilation");
 
                     if (schemeAttic == null)
                     {

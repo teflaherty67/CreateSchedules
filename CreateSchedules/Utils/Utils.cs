@@ -455,5 +455,37 @@ namespace CreateSchedules
 
         //    return null;
         //}
+
+        #region Design options
+        internal static List<DesignOption> getAllDesignOptions(Document curDoc)
+        {
+            FilteredElementCollector curCol = new FilteredElementCollector(curDoc);
+            curCol.OfCategory(BuiltInCategory.OST_DesignOptions);
+
+            List<DesignOption> doList = new List<DesignOption>();
+            foreach (DesignOption curOpt in curCol)
+            {
+                doList.Add(curOpt);
+            }
+
+            return doList;
+        }
+
+        internal static DesignOption getDesignOptionByName(Document curDoc, string designOpt)
+        {
+            //get all design options
+            List<DesignOption> doList = getAllDesignOptions(curDoc);
+
+            foreach (DesignOption curOpt in doList)
+            {
+                if (curOpt.Name == designOpt)
+                {
+                    return curOpt;
+                }
+            }
+
+            return null;
+        }
+        #endregion
     }
 }
