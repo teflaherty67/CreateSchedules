@@ -59,6 +59,8 @@ namespace CreateSchedules
             {
                 t.Start("Create Schedules");
 
+                #region Sheet Index
+
                 // check to see if the sheet index exists
 
                 ViewSchedule schedIndex = Utils.GetScheduleByNameContains(curDoc, "Sheet Index - Elevation " + Globals.ElevDesignation);
@@ -88,9 +90,48 @@ namespace CreateSchedules
 
                         // set the design option to the specified elevation designation
 
-                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation " + lastChar);
+                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation " + lastChar); // !!! this code throws an error
                     }
                 }
+
+                #endregion
+
+                #region Exterior Veneer Calculations
+
+                ViewSchedule veneerIndex = Utils.GetScheduleByNameContains(curDoc, "Exterior Veneer Calculations - Elevation " + Globals.ElevDesignation);
+
+                if (chbIndexResult == true)
+                {
+                    if (veneerIndex == null)
+                    {
+                        // duplicate the first schedule with "Exterior Venner Calculations" in the name
+                        List<ViewSchedule> listSched = Utils.GetAllScheduleByNameContains(curDoc, "Exterior Veneer Calculations");
+
+                        ViewSchedule dupSched = listSched.FirstOrDefault();
+
+                        Element viewSched = curDoc.GetElement(dupSched.Duplicate(ViewDuplicateOption.Duplicate));
+
+                        // rename the duplicated schedule to the new elevation
+
+                        string originalName = viewSched.Name;
+                        string[] schedTitle = originalName.Split('C');
+
+                        string curTitle = schedTitle[0];
+
+                        string lastChar = curTitle.Substring(curTitle.Length - 2);
+                        string newLast = Globals.ElevDesignation.ToString();
+
+                        viewSched.Name = curTitle.Replace(lastChar, newLast);
+
+                        // set the design option to the specified elevation designation
+
+                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation " + lastChar); // !!! this code throws an error
+                    }
+                }
+
+                #endregion
+
+                #region Floor Area Schedules
 
                 // check to see if the floor area scheme exists
 
@@ -225,36 +266,72 @@ namespace CreateSchedules
 
                         // if the floor area plans exist, create the schedule
 
-                        ElementId areaCategoryId = new ElementId(BuiltInCategory.OST_Areas);
+                        // get the Area category Id
+                        ElementId areaCatId = new ElementId(BuiltInCategory.OST_Areas); // ??? is this needed
 
+                        // get the area scheme for the schedule
                         AreaScheme curAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Floor");
+
+                        // create the new schedule
                         ViewSchedule newFloorSched = Utils.CreateAreaSchedule(curDoc, "Floor Areas - Elevation " + Globals.ElevDesignation, curAreaScheme);
 
                         if (areaFloorView != null)
                         {
                             if (floorNum == 1)
                             {
+                                // create a list of the fields for the schedule
                                 List<string> paramNames = new List<string>() { "Area Category", "Comments", "Name", "Area", "Number" };
-                                List<Parameter> paramsFloorSingle = Utils.GetParametersByName(curDoc, paramNames);
-                                
+
+                                // get the associated parameters & add them to the schedule
+                                List<Parameter> paramsFloorSingle = Utils.GetParametersByName(curDoc, paramNames);                                
                                 Utils.AddFieldsToSchedule(curDoc, newFloorSched, paramsFloorSingle);
 
-                                // create the fields to use for the filters
-                                ElementId catFieldId = Utils.GetParameterIdByName(curDoc, paramsFloorSingle, "Area Category");
+                                // create the fields to use for filter and formatting
+
+                                // get element Id of the parameters
+                                ElementId catFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Area Category");
+                                ElementId comFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Comments");
+                                ElementId nameFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Name");
+                                ElementId areaFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Area");
+                                ElementId numFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Number");
 
                                 ScheduleField catField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, catFieldId);
+                                catField.IsHidden = true;
+
+                                ScheduleField comField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, comFieldId);
+                                comField.IsHidden = true;
+
+                                ScheduleField nameField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, nameFieldId);
+                                nameField.IsHidden = false;
+                                nameField.ColumnHeading = "Name";
+                                nameField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                                nameField.HorizontalAlignment = ScheduleHorizontalAlignment.Left;
+
+                                ScheduleField areaField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, areaFieldId);
+                                areaField.IsHidden = false;
+                                areaField.ColumnHeading = "Area";
+                                areaField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                                areaField.HorizontalAlignment = ScheduleHorizontalAlignment.Right;
+                                // areaField.IsCalculatedField = true;  // ??? can this be set to "Calculate totals"
+
+                                ScheduleField numField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, numFieldId);
+                                numField.IsHidden = true;
 
                                 // create the filters
 
                                 ScheduleFilter catFilter = new ScheduleFilter(catField.FieldId, ScheduleFilterType.Contains, "Options");
                                 newFloorSched.Definition.AddFilter(catFilter);
 
-                                //ScheduleFilter areaFilter = new ScheduleFilter(areaField.FieldId, ScheduleFilterType.GreaterThan, "0 SF");
+                                ScheduleFilter areaFilter = new ScheduleFilter(areaField.FieldId, ScheduleFilterType.GreaterThan, "0 SF");
 
                                 // set the sorting
 
-                                //ScheduleSortGroupField catSort = new ScheduleSortGroupField(catField.FieldId, ScheduleSortOrder.Ascending);
-                                //ScheduleSortGroupField commentSort = new ScheduleSortGroupField(commentField.FieldId, ScheduleSortOrder.Ascending);
+                                ScheduleSortGroupField catSort = new ScheduleSortGroupField(catField.FieldId, ScheduleSortOrder.Ascending);
+                                catSort.ShowFooter = true;
+                                catSort.ShowFooterCount = true; //??? how to set the footer to be "Title and Totals"
+                                catSort.ShowBlankLine = true;
+
+                                ScheduleSortGroupField comSort = new ScheduleSortGroupField(comField.FieldId, ScheduleSortOrder.Ascending);
                             }
 
                             else if (floorNum == 2 || floorNum == 3)
@@ -282,6 +359,8 @@ namespace CreateSchedules
                         }
                     }
                 }
+
+                #endregion
 
                 // check to see if the frame area scheme exists
 
