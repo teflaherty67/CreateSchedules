@@ -240,7 +240,7 @@ namespace CreateSchedules
 
                                 // find the fields
 
-                                ScheduleField catField = Utils.FindScheduleField(newFloorSched, paramsFloorSingle[0]);
+                                //ScheduleField catFields = Utils.FindScheduleField(newFloorSched, paramsFloorSingle[0]);
 
                                 ScheduleField catField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorSingle[0].Id);
                                 ScheduleField commentField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorSingle[1].Id);

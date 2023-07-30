@@ -438,23 +438,23 @@ namespace CreateSchedules
             return m_returnList;
         }
 
-        //internal static ScheduleField FindScheduleField(ViewSchedule newFloorSched, Parameter paramName)
-        //{
-        //    ScheduleDefinition definition = newFloorSched.Definition;
-        //    ScheduleField foundField = null;
-        //    ElementId paramId = new ElementId(paramName);
+        internal static ScheduleField FindScheduleField(ViewSchedule newFloorSched, Parameter paramName)
+        {
+            ScheduleDefinition definition = newFloorSched.Definition;
+            ScheduleField foundField = null;
+            ElementId paramId = new ElementId(paramName);
 
-        //    foreach (ScheduleFieldId fieldId in definition.GetFieldOrder())
-        //    {
-        //        foundField = definition.GetField(fieldId);
-        //        if (foundField.ParameterId == paramId)
-        //        {
-        //            return foundField;
-        //        }
-        //    }
+            foreach (ScheduleFieldId fieldId in definition.GetFieldOrder())
+            {
+                foundField = definition.GetField(fieldId);
+                if (foundField.ParameterId == paramId)
+                {
+                    return foundField;
+                }
+            }
 
-        //    return null;
-        //}
+            return null;
+        }
 
         #region Design options
         internal static List<DesignOption> getAllDesignOptions(Document curDoc)
