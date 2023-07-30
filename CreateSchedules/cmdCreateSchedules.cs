@@ -362,6 +362,8 @@ namespace CreateSchedules
 
                 #endregion
 
+                #region Frame Area Schedules
+
                 // check to see if the frame area scheme exists
 
                 if (chbFrameResult == true)
@@ -384,6 +386,10 @@ namespace CreateSchedules
                     }
                 }
 
+                #endregion
+
+                #region Roof Ventilation Schedules
+
                 // chck to see if the attic area scheme exists
 
                 if (chbAtticResult == true)
@@ -405,6 +411,8 @@ namespace CreateSchedules
                         // check to see if the attic area plans exist
                     }
                 }
+
+                #endregion
 
                 t.Commit();
             }
