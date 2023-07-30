@@ -90,7 +90,7 @@ namespace CreateSchedules
 
                         // set the design option to the specified elevation designation
 
-                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation " + lastChar); // !!! this code throws an error
+                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation : " + lastChar); // !!! this code throws an error
                     }
                 }
 
@@ -100,7 +100,7 @@ namespace CreateSchedules
 
                 ViewSchedule veneerIndex = Utils.GetScheduleByNameContains(curDoc, "Exterior Veneer Calculations - Elevation " + Globals.ElevDesignation);
 
-                if (chbIndexResult == true)
+                if (chbVeneerResult == true)
                 {
                     if (veneerIndex == null)
                     {
@@ -114,18 +114,13 @@ namespace CreateSchedules
                         // rename the duplicated schedule to the new elevation
 
                         string originalName = viewSched.Name;
-                        string[] schedTitle = originalName.Split('C');
+                        string[] schedTitle = originalName.Split('-');                        
 
-                        string curTitle = schedTitle[0];
-
-                        string lastChar = curTitle.Substring(curTitle.Length - 2);
-                        string newLast = Globals.ElevDesignation.ToString();
-
-                        viewSched.Name = curTitle.Replace(lastChar, newLast);
+                        viewSched.Name = schedTitle[0] + "- Elevation " + Globals.ElevDesignation;
 
                         // set the design option to the specified elevation designation
 
-                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation " + lastChar); // !!! this code throws an error
+                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation : " + Globals.ElevDesignation); // !!! this code throws an error
                     }
                 }
 
@@ -288,50 +283,50 @@ namespace CreateSchedules
 
                                 // create the fields to use for filter and formatting
 
-                                // get element Id of the parameters
-                                ElementId catFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Area Category");
-                                ElementId comFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Comments");
-                                ElementId nameFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Name");
-                                ElementId areaFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Area");
-                                ElementId numFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Number");
+                                //// get element Id of the parameters
+                                //ElementId catFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Area Category");
+                                //ElementId comFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Comments");
+                                //ElementId nameFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Name");
+                                //ElementId areaFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Area");
+                                //ElementId numFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Number");
 
-                                ScheduleField catField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, catFieldId);
-                                catField.IsHidden = true;
+                                //ScheduleField catField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, catFieldId);
+                                //catField.IsHidden = true;
 
-                                ScheduleField comField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, comFieldId);
-                                comField.IsHidden = true;
+                                //ScheduleField comField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, comFieldId);
+                                //comField.IsHidden = true;
 
-                                ScheduleField nameField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, nameFieldId);
-                                nameField.IsHidden = false;
-                                nameField.ColumnHeading = "Name";
-                                nameField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
-                                nameField.HorizontalAlignment = ScheduleHorizontalAlignment.Left;
+                                //ScheduleField nameField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, nameFieldId);
+                                //nameField.IsHidden = false;
+                                //nameField.ColumnHeading = "Name";
+                                //nameField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                                //nameField.HorizontalAlignment = ScheduleHorizontalAlignment.Left;
 
-                                ScheduleField areaField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, areaFieldId);
-                                areaField.IsHidden = false;
-                                areaField.ColumnHeading = "Area";
-                                areaField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
-                                areaField.HorizontalAlignment = ScheduleHorizontalAlignment.Right;
+                                //ScheduleField areaField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, areaFieldId);
+                                //areaField.IsHidden = false;
+                                //areaField.ColumnHeading = "Area";
+                                //areaField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                                //areaField.HorizontalAlignment = ScheduleHorizontalAlignment.Right;
                                 // areaField.IsCalculatedField = true;  // ??? can this be set to "Calculate totals"
 
-                                ScheduleField numField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, numFieldId);
-                                numField.IsHidden = true;
+                                //ScheduleField numField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, numFieldId);
+                                //numField.IsHidden = true;
 
-                                // create the filters
+                                //// create the filters
 
-                                ScheduleFilter catFilter = new ScheduleFilter(catField.FieldId, ScheduleFilterType.Contains, "Options");
-                                newFloorSched.Definition.AddFilter(catFilter);
+                                //ScheduleFilter catFilter = new ScheduleFilter(catField.FieldId, ScheduleFilterType.Contains, "Options");
+                                //newFloorSched.Definition.AddFilter(catFilter);
 
-                                ScheduleFilter areaFilter = new ScheduleFilter(areaField.FieldId, ScheduleFilterType.GreaterThan, "0 SF");
+                                //ScheduleFilter areaFilter = new ScheduleFilter(areaField.FieldId, ScheduleFilterType.GreaterThan, "0 SF");
 
-                                // set the sorting
+                                //// set the sorting
 
-                                ScheduleSortGroupField catSort = new ScheduleSortGroupField(catField.FieldId, ScheduleSortOrder.Ascending);
-                                catSort.ShowFooter = true;
-                                catSort.ShowFooterCount = true; //??? how to set the footer to be "Title and Totals"
-                                catSort.ShowBlankLine = true;
+                                //ScheduleSortGroupField catSort = new ScheduleSortGroupField(catField.FieldId, ScheduleSortOrder.Ascending);
+                                //catSort.ShowFooter = true;
+                                //catSort.ShowFooterCount = true; //??? how to set the footer to be "Title and Totals"
+                                //catSort.ShowBlankLine = true;
 
-                                ScheduleSortGroupField comSort = new ScheduleSortGroupField(comField.FieldId, ScheduleSortOrder.Ascending);
+                                //ScheduleSortGroupField comSort = new ScheduleSortGroupField(comField.FieldId, ScheduleSortOrder.Ascending);
                             }
 
                             else if (floorNum == 2 || floorNum == 3)

@@ -401,31 +401,31 @@ namespace CreateSchedules
             return null;
         }        
 
-        internal static ElementId GetElementIdFromSharedParameter(Document curDoc, string paramName)
-        {
-            // Step 1: Retrieve the shared parameter definition by name
-            DefinitionFile definitionFile = curDoc.Application.OpenSharedParameterFile();
-            DefinitionGroup definitionGroup = definitionFile.Groups.get_Item("YourSharedParameterGroup"); // Replace "YourSharedParameterGroup" with the actual group name where your shared parameter is defined
-            Definition definition = definitionGroup.Definitions.get_Item(paramName);
+        //internal static ElementId GetElementIdFromSharedParameter(Document curDoc, string paramName)
+        //{
+        //    // Step 1: Retrieve the shared parameter definition by name
+        //    DefinitionFile definitionFile = curDoc.Application.OpenSharedParameterFile();
+        //    DefinitionGroup definitionGroup = definitionFile.Groups.get_Item("YourSharedParameterGroup"); // Replace "YourSharedParameterGroup" with the actual group name where your shared parameter is defined
+        //    Definition definition = definitionGroup.Definitions.get_Item(paramName);
 
-            // Step 2: Get the parameter from the element using the definition
-            FilteredElementCollector m_collector = new FilteredElementCollector(curDoc)
-                .OfCategory(BuiltInCategory.OST_Areas); // Filter for the specific element type (e.g., FamilyInstance)
-            ParameterElement parameterElement = m_collector as ParameterElement
-                .FirstOrDefault(elem => elem.GetOrderedParameters()
-                .Cast<Parameter>()
-                .Any(param => param.Definition.Name == paramName));
+        //    // Step 2: Get the parameter from the element using the definition
+        //    FilteredElementCollector m_collector = new FilteredElementCollector(curDoc)
+        //        .OfCategory(BuiltInCategory.OST_Areas); // Filter for the specific element type (e.g., FamilyInstance)
+        //    ParameterElement parameterElement = m_collector as ParameterElement
+        //        .FirstOrDefault(elem => elem.GetOrderedParameters()
+        //        .Cast<Parameter>()
+        //        .Any(param => param.Definition.Name == paramName));
 
-            if (parameterElement == null)
-            {
-                // The shared parameter is not found on any element
-                return ElementId.InvalidElementId;
-            }
+        //    if (parameterElement == null)
+        //    {
+        //        // The shared parameter is not found on any element
+        //        return ElementId.InvalidElementId;
+        //    }
 
-            // Step 3: Extract the element ID from the parameter
-            ElementId elementId = parameterElement.Id;
-            return elementId;
-        }
+        //    // Step 3: Extract the element ID from the parameter
+        //    ElementId elementId = parameterElement.Id;
+        //    return elementId;
+        //}
 
 
         #endregion
