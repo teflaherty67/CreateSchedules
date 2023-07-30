@@ -10,11 +10,11 @@ using System.Windows.Media.Imaging;
 
 namespace CreateSchedules
 {
-    internal class ButtonDataClass
+    internal class clsButtonDataClass
     {
         public PushButtonData Data { get; set; }
 
-        public ButtonDataClass(string name, string text, string className, System.Drawing.Bitmap largeImage,
+        public clsButtonDataClass(string name, string text, string className, System.Drawing.Bitmap largeImage,
             System.Drawing.Bitmap smallImage, string toolTip)
         {
             Data = new PushButtonData(name, text, GetAssemblyName(), className);
