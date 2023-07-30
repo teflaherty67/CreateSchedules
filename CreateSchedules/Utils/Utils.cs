@@ -13,52 +13,7 @@ using System.Windows.Media.Imaging;
 namespace CreateSchedules
 {
     internal static class Utils
-    {
-        public static List<View> GetAllElevationViews(Document doc)
-        {
-            List<View> returnList = new List<View>();
-
-            FilteredElementCollector colViews = new FilteredElementCollector(doc);
-            colViews.OfClass(typeof(View));
-
-            // loop through views and check for elevation views
-            foreach (View x in colViews)
-            {
-                if (x.GetType() == typeof(ViewSection))
-                {
-                    if (x.IsTemplate == false)
-                    {
-                        if (x.ViewType == ViewType.Elevation)
-                        {
-                            // add view to list
-                            returnList.Add(x);
-                        }
-                    }
-                }
-            }
-
-            return returnList;
-        }
-
-        internal static string GetParameterValueByName(Element element, string paramName)
-        {
-            IList<Parameter> paramList = element.GetParameters(paramName);
-
-            if (paramList != null)
-                try
-                {
-                    Parameter param = paramList[0];
-                    string paramValue = param.AsValueString();
-                    return paramValue;
-                }
-                catch (System.ArgumentOutOfRangeException)
-                {
-                    return null;
-                }
-
-            return "";
-        }
-
+    {      
         internal static void SetParameterByName(Element element, string paramName, string value)
         {
             IList<Parameter> paramList = element.GetParameters(paramName);
@@ -135,49 +90,7 @@ namespace CreateSchedules
             }
 
             return string.Empty;
-        }
-
-        internal static string CleanSheetNumber(string sheetNumber)
-        {
-            Regex regex = new Regex(@"[^a-zA-Z0-9\s]", (RegexOptions)0);
-            string replaceText = regex.Replace(sheetNumber, "");
-
-            return replaceText;
-        }
-
-        public static List<ViewSheet> GetSheetsByNumber(Document curDoc, string sheetNumber)
-        {
-            List<ViewSheet> returnSheets = new List<ViewSheet>();
-
-            //get all sheets
-            List<ViewSheet> curSheets = GetAllSheets(curDoc);
-
-            //loop through sheets and check sheet name
-            foreach (ViewSheet curSheet in curSheets)
-            {
-                if (curSheet.SheetNumber.Contains(sheetNumber))
-                {
-                    returnSheets.Add(curSheet);
-                }
-            }
-
-            return returnSheets;
-        }
-
-        public static List<ViewSheet> GetAllSheets(Document curDoc)
-        {
-            //get all sheets
-            FilteredElementCollector m_colViews = new FilteredElementCollector(curDoc);
-            m_colViews.OfCategory(BuiltInCategory.OST_Sheets);
-
-            List<ViewSheet> m_sheets = new List<ViewSheet>();
-            foreach (ViewSheet x in m_colViews.ToElements())
-            {
-                m_sheets.Add(x);
-            }
-
-            return m_sheets;
-        }
+        }       
 
         internal static AreaScheme GetAreaSchemeByName(Document doc, string schemeName)
         {
@@ -438,23 +351,23 @@ namespace CreateSchedules
             return m_returnList;
         }
 
-        internal static ScheduleField FindScheduleField(ViewSchedule newFloorSched, Parameter paramName)
-        {
-            ScheduleDefinition definition = newFloorSched.Definition;
-            ScheduleField foundField = null;
-            ElementId paramId = new ElementId(paramName);
+        //internal static ScheduleField FindScheduleField(ViewSchedule newFloorSched, Parameter paramName)
+        //{
+        //    ScheduleDefinition definition = newFloorSched.Definition;
+        //    ScheduleField foundField = null;
+        //    ElementId paramId = new ElementId(paramName);
 
-            foreach (ScheduleFieldId fieldId in definition.GetFieldOrder())
-            {
-                foundField = definition.GetField(fieldId);
-                if (foundField.ParameterId == paramId)
-                {
-                    return foundField;
-                }
-            }
+        //    foreach (ScheduleFieldId fieldId in definition.GetFieldOrder())
+        //    {
+        //        foundField = definition.GetField(fieldId);
+        //        if (foundField.ParameterId == paramId)
+        //        {
+        //            return foundField;
+        //        }
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
         #region Design options
         internal static List<DesignOption> getAllDesignOptions(Document curDoc)
@@ -486,6 +399,21 @@ namespace CreateSchedules
 
             return null;
         }
+
+        internal static ElementId GetParameterIdByName(Document curDoc, List<Parameter> paramsList, string paramName)
+        {
+            List<Parameter> m_searchList = paramsList;
+
+            foreach (Parameter curParam in m_searchList)
+            {
+                if (curParam.Name == paramName)
+                {
+                    ElementId = curParam.Id;
+                }
+            }
+        }
+
+
         #endregion
     }
 }
