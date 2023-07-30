@@ -224,7 +224,7 @@ namespace CreateSchedules
 
                                         Area areaLiving1 = curDoc.Create.NewArea(areaFloor, insPoint);
                                         areaLiving1.Number = "1";
-                                        areaLiving1.Name = "Living";
+                                        areaLiving1.Name = "Living";                                    
 
                                         Area areaGarage = curDoc.Create.NewArea(areaFloor, insPoint);
                                         areaGarage.Number = "2";
@@ -254,7 +254,7 @@ namespace CreateSchedules
                                         areaOption1.Number = "8";
                                         areaOption1.Name = "Option";
 
-                                        // still need to set values for Area Category & Comments
+                                        // !!! still need to set values for Area Category & Comments
                                     }
                                     else if (level.ToString() == "Upper Level" || level.ToString() == "Second Floor")
                                     {
