@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -151,7 +152,7 @@ namespace CreateSchedules
 
         private void btnHelp_Click(object sender, RoutedEventArgs e)
         {
-
+            Process.Start("https://lifestyle-usa-design.atlassian.net/l/cp/iPN0EV0v");
         }
     }
 }
