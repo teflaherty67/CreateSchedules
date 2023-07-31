@@ -624,7 +624,11 @@ namespace CreateSchedules
 
                 #region Roof Ventilation Schedules
 
-                // chck to see if the attic area scheme exists
+                // set a variable for the equipment schedule
+
+                ViewSchedule schedEquipment = Utils.GetScheduleByNameContains(curDoc, "Roof Ventilation Equipment - Elevation " + Globals.ElevDesignation);
+
+                // check to see if the attic area scheme exists
 
                 if (chbAtticResult == true)
                 {
@@ -727,6 +731,32 @@ namespace CreateSchedules
                         // get the associated parameters & add them to the schedule
                         List<Parameter> paramsAtticMulti = Utils.GetParametersByName(curDoc, paramNames);
                         Utils.AddFieldsToSchedule(curDoc, newAtticSched, paramsAtticMulti);
+                    }
+
+                    if (schedEquipment == null)
+                    {
+                        // duplicate the first schedule found with Roof Ventilation Equipment in the name
+                        List<ViewSchedule> listSched = Utils.GetAllScheduleByNameContains(curDoc, "Roof Ventilation Equipment");
+
+                        ViewSchedule dupSched = listSched.FirstOrDefault();
+
+                        Element viewSched = curDoc.GetElement(dupSched.Duplicate(ViewDuplicateOption.Duplicate));
+
+                        // rename the duplicated schedule to the new elevation
+
+                        string originalName = viewSched.Name;
+                        string[] schedTitle = originalName.Split('C');
+
+                        string curTitle = schedTitle[0];
+
+                        string lastChar = curTitle.Substring(curTitle.Length - 2);
+                        string newLast = Globals.ElevDesignation.ToString();
+
+                        viewSched.Name = curTitle.Replace(lastChar, newLast);
+
+                        // set the design option to the specified elevation designation
+
+                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation : " + lastChar); // !!! this code throws an error 
                     }
                 }
 
