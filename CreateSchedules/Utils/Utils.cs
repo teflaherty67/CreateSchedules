@@ -237,6 +237,21 @@ namespace CreateSchedules
             return returnList;
         }
 
+        internal static Level GetLevelByName(Document doc, string levelWord)
+        {
+            List<Level> levels = GetAllLevels(doc);
+
+            Level returnLevel = null;
+
+            foreach (Level curLevel in levels)
+            {
+                if (curLevel.Name.Contains(levelWord))
+                    return returnLevel;
+            }
+
+            return null;
+        }
+
         public static List<Level> GetAllLevels(Document doc)
         {
             FilteredElementCollector colLevels = new FilteredElementCollector(doc);

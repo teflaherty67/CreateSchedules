@@ -642,7 +642,91 @@ namespace CreateSchedules
 
                     if (schemeAttic != null)
                     {
-                        // check to see if the attic area plans exist
+                        // set some variables
+
+                        ViewPlan areaAtticView = Utils.GetAreaPlanByViewFamilyName(curDoc, Globals.ElevDesignation + " Roof Ventilation");
+
+                        // if not, create the area plans
+
+                        if (areaAtticView == null)
+                        {
+                            string levelWord = "";
+
+                            if (floorNum == 1 && typeFoundation == "Slab")
+                            {
+                                levelWord = "First Floor";
+                            }
+                            else if (floorNum == 1 && typeFoundation == "Basement" || typeFoundation == "Crawlspace")
+                            {
+                                levelWord = "Main Level";
+                            }
+                            else if (floorNum == 2 && typeFoundation == "Slab")
+                            {
+                                levelWord = "Second Floor";
+                            }
+                            else if (floorNum == 2 && typeFoundation == "Basement" || typeFoundation == "Crawlspace")
+                            {
+                                levelWord = "Upper Level";
+                            }
+
+                            Level levelAttic = Utils.GetLevelByName(curDoc, levelWord);
+
+                            ElementId schemeAtticId = schemeAttic.Id;
+
+                            ElementId levelAtticId = levelAttic.Id;
+
+                            View vtAtticAreas = Utils.GetViewTemplateByName(curDoc, "12-Attic Area");
+
+                            ViewPlan areaAttic = ViewPlan.CreateAreaPlan(curDoc, schemeAtticId, levelAtticId);
+                            areaAttic.Name = "Roof";
+                            areaAttic.ViewTemplateId = vtAtticAreas.Id;
+
+                            uidoc.ActiveView = areaAttic;
+
+                            XYZ insStart = new XYZ(0, 0, 0);
+
+                            double calcOffset = 1.0 * curDoc.ActiveView.Scale;
+
+                            XYZ offset = new XYZ(0, calcOffset, 0);
+
+                            UV insPoint = new UV(insStart.X, insStart.Y);
+
+                            Area areaAttic1 = curDoc.Create.NewArea(areaAttic, insPoint);
+                            areaAttic1.Number = "1";
+                            areaAttic1.Name = "Attic 1";
+
+                            Area areaAttic2 = curDoc.Create.NewArea(areaAttic, insPoint);
+                            areaAttic2.Number = "2";
+                            areaAttic2.Name = "Attic 2";}
+                        }
+
+                        // if the attic area plans exist, create the schedule
+
+                        // get the area scheme for the schedule
+                        AreaScheme curAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Roof Ventilation");
+
+                        // create the new schedule
+                        ViewSchedule newAtticSched = Utils.CreateAreaSchedule(curDoc, 
+                            "Roof Ventilation Calculations - Elevation " + Globals.ElevDesignation, curAreaScheme);
+
+                    if (typeAttic == "Single")
+                    {
+                        // create a list of the fields for the schedule
+                        List<string> paramNames = new List<string>() { "Area", "1/150 Ratio" }; // ??? add calculated parameter
+
+                        // get the associated parameters & add them to the schedule
+                        List<Parameter> paramsAtticSingle = Utils.GetParametersByName(curDoc, paramNames);
+                        Utils.AddFieldsToSchedule(curDoc, newAtticSched, paramsAtticSingle);
+                    }
+
+                    else if (typeAttic == "Multiple")
+                    {
+                        // create a list of the fields for the schedule
+                        List<string> paramNames = new List<string>() { "Name", "Area", "1/150 Ratio" }; // ??? add calculated parameter
+
+                        // get the associated parameters & add them to the schedule
+                        List<Parameter> paramsAtticMulti = Utils.GetParametersByName(curDoc, paramNames);
+                        Utils.AddFieldsToSchedule(curDoc, newAtticSched, paramsAtticMulti);
                     }
                 }
 
