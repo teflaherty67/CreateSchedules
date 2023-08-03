@@ -462,6 +462,24 @@ namespace CreateSchedules
             return pElem?.Id;
 
         }
+
+        //Parameter doParam = m_fp.get_Parameter(BuiltInParameter.VIEWER_OPTION_VISIBILITY);
+
+        //                                try
+
+        //                                {
+
+        //                                    doParam.Set(curDO.Id);
+
+        //                                }
+
+        //                                catch (Exception)
+
+        //                                {
+
+        //                                    TaskDialog.Show("Error", "Could not set design option parameter.");
+
+        //                                }
     }
 }
 
