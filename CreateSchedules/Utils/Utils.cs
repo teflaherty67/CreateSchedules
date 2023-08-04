@@ -14,84 +14,9 @@ using System.Windows.Media.Imaging;
 namespace CreateSchedules
 {
     internal static class Utils
-    {      
-        internal static void SetParameterByName(Element element, string paramName, string value)
-        {
-            IList<Parameter> paramList = element.GetParameters(paramName);
+    {
 
-            if (paramList != null)
-            {
-                Parameter param = paramList[0];
-
-                param.Set(value);
-            }
-        }
-
-        internal static void SetParameterByName(Element element, string paramName, int value)
-        {
-            IList<Parameter> paramList = element.GetParameters(paramName);
-
-            if (paramList != null)
-            {
-                Parameter param = paramList[0];
-
-                param.Set(value);
-            }
-        }
-
-        internal static BitmapImage BitmapToImageSource(Bitmap bm)
-        {
-            using (MemoryStream mem = new MemoryStream())
-            {
-                bm.Save(mem, System.Drawing.Imaging.ImageFormat.Png);
-                mem.Position = 0;
-                BitmapImage bmi = new BitmapImage();
-                bmi.BeginInit();
-                bmi.StreamSource = mem;
-                bmi.CacheOption = BitmapCacheOption.OnLoad;
-                bmi.EndInit();
-
-                return bmi;
-            }
-        }
-
-        internal static RibbonPanel CreateRibbonPanel(UIControlledApplication app, string tabName, string panelName)
-        {
-            RibbonPanel curPanel = GetRibbonPanelByName(app, tabName, panelName);
-
-            if (curPanel == null)
-                curPanel = app.CreateRibbonPanel(tabName, panelName);
-
-            return curPanel;
-        }
-
-        private static RibbonPanel GetRibbonPanelByName(UIControlledApplication app, string tabName, string panelName)
-        {
-            foreach (RibbonPanel tempPanel in app.GetRibbonPanels(tabName))
-            {
-                if (tempPanel.Name == panelName)
-                    return tempPanel;
-            }
-
-            return null;
-        }
-
-        internal static string GetStringBetweenCharacters(string input, string charFrom, string charTo)
-        {
-            //string cleanInput = CleanSheetNumber(input);
-
-            int posFrom = input.IndexOf(charFrom);
-            if (posFrom != -1) //if found char
-            {
-                int posTo = input.IndexOf(charTo, posFrom + 1);
-                if (posTo != -1) //if found char
-                {
-                    return input.Substring(posFrom + 1, posTo - posFrom - 1);
-                }
-            }
-
-            return string.Empty;
-        }       
+        #region Areas Scheme
 
         internal static AreaScheme GetAreaSchemeByName(Document doc, string schemeName)
         {
@@ -109,100 +34,43 @@ namespace CreateSchedules
             return null;
         }
 
-        internal static List<Parameter> GetParametersByName(Document doc, List<string> paramNames)
+        #endregion
+
+        #region Design Options
+
+        internal static List<DesignOption> getAllDesignOptions(Document curDoc)
         {
-            List<Parameter> returnList = new List<Parameter>();
+            FilteredElementCollector curCol = new FilteredElementCollector(curDoc);
+            curCol.OfCategory(BuiltInCategory.OST_DesignOptions);
 
-            FilteredElementCollector collector = new FilteredElementCollector(doc);
-            collector.OfCategory(BuiltInCategory.OST_Areas);
-
-            foreach (string curName in paramNames)
+            List<DesignOption> doList = new List<DesignOption>();
+            foreach (DesignOption curOpt in curCol)
             {
-                Parameter curParam = collector.FirstElement().LookupParameter(curName);
-
-                if (curParam != null)
-                    returnList.Add(curParam);
+                doList.Add(curOpt);
             }
 
-            return returnList;
+            return doList;
         }
 
-        internal static ViewSchedule CreateAreaSchedule(Document doc, string schedName, AreaScheme curAreaScheme)
+        internal static DesignOption getDesignOptionByName(Document curDoc, string designOpt)
         {
-            ElementId catId = new ElementId(BuiltInCategory.OST_Areas);
-            ViewSchedule newSchedule = ViewSchedule.CreateSchedule(doc, catId, curAreaScheme.Id);
-            newSchedule.Name = schedName;
+            //get all design options
+            List<DesignOption> doList = getAllDesignOptions(curDoc);
 
-            return newSchedule;
-        }
-        internal static ViewSchedule CreateSchedule(Document doc, BuiltInCategory curCat, string name)
-        {
-            ElementId catId = new ElementId(curCat);
-            ViewSchedule newSchedule = ViewSchedule.CreateSchedule(doc, catId);
-            newSchedule.Name = name;
-
-            return newSchedule;
-        }
-        internal static void AddFieldsToSchedule(Document doc, ViewSchedule newSched, List<Parameter> paramList)
-        {
-            foreach (Parameter curParam in paramList)
+            foreach (DesignOption curOpt in doList)
             {
-                SchedulableField newField = new SchedulableField(ScheduleFieldType.Instance, curParam.Id);
-                newSched.Definition.AddField(newField);
-            }
-        }
-
-        internal static List<ViewPlan> GetAllAreaPlans(Document curDoc)
-        {
-            List<ViewPlan> returnList = new List<ViewPlan>();
-            List<ViewPlan> viewList = GetAllViewPlans(curDoc);
-
-            foreach (View x in viewList)
-            {
-                if (x.ViewType == ViewType.AreaPlan)
+                if (curOpt.Name == designOpt)
                 {
-                    returnList.Add((ViewPlan)x);
-                }
-            }
-
-            return returnList;
-        }
-
-        public static List<ViewPlan> GetAllViewPlans(Document curDoc)
-        {
-            List<ViewPlan> returnList = new List<ViewPlan>();
-
-            FilteredElementCollector viewCollector = new FilteredElementCollector(curDoc);
-            viewCollector.OfCategory(BuiltInCategory.OST_Views);
-            viewCollector.OfClass(typeof(ViewPlan)).ToElements();
-
-            foreach (ViewPlan vp in viewCollector)
-            {
-                if (vp.IsTemplate == false)
-                    returnList.Add(vp);
-            }
-
-            return returnList;
-        }
-
-        internal static ViewPlan GetAreaPlanByViewFamilyName(Document doc, string vftName)
-        {
-            FilteredElementCollector collector = new FilteredElementCollector(doc);
-            collector.OfClass(typeof(ViewPlan));
-
-            foreach (ViewPlan curViewPlan in collector)
-            {
-                if (curViewPlan.ViewType == ViewType.AreaPlan)
-                {
-                    ViewFamilyType curVFT = doc.GetElement(curViewPlan.GetTypeId()) as ViewFamilyType;
-
-                    if (curVFT.Name == vftName)
-                        return curViewPlan;
+                    return curOpt;
                 }
             }
 
             return null;
         }
+
+        #endregion
+
+        #region Levels
 
         internal static List<ElementId> GetAllLevelIds(Document doc)
         {
@@ -271,56 +139,87 @@ namespace CreateSchedules
             //m_levels = (From l In m_levels Order By l.Elevation).tolist()
         }
 
-        public static View GetViewTemplateByName(Document curDoc, string viewTemplateName)
+        #endregion
+
+        #region Parameters
+
+        internal static List<Parameter> GetParametersByName(Document doc, List<string> paramNames)
         {
-            List<View> viewTemplateList = GetAllViewTemplates(curDoc);
+            List<Parameter> returnList = new List<Parameter>();
 
-            foreach (View v in viewTemplateList)
+            FilteredElementCollector collector = new FilteredElementCollector(doc);
+            collector.OfCategory(BuiltInCategory.OST_Areas);
+
+            foreach (string curName in paramNames)
             {
-                if (v.Name == viewTemplateName)
-                {
-                    return v;
-                }
-            }
+                Parameter curParam = collector.FirstElement().LookupParameter(curName);
 
-            return null;
-        }
-
-        public static List<View> GetAllViewTemplates(Document curDoc)
-        {
-            List<View> returnList = new List<View>();
-            List<View> viewList = GetAllViews(curDoc);
-
-            //loop through views and check if is view template
-            foreach (View v in viewList)
-            {
-                if (v.IsTemplate == true)
-                {
-                    //add view template to list
-                    returnList.Add(v);
-                }
+                if (curParam != null)
+                    returnList.Add(curParam);
             }
 
             return returnList;
         }
 
-        public static List<View> GetAllViews(Document curDoc)
+        internal static ElementId GetProjectParameterId(Document doc, string name)
         {
-            FilteredElementCollector m_colviews = new FilteredElementCollector(curDoc);
-            m_colviews.OfCategory(BuiltInCategory.OST_Views);
+            ParameterElement pElem = new FilteredElementCollector(doc)
+                .OfClass(typeof(ParameterElement))
+                .Cast<ParameterElement>()
+                .Where(e => e.Name.Equals(name))
+                .FirstOrDefault();
 
-            List<View> m_views = new List<View>();
-            foreach (View x in m_colviews.ToElements())
+            return pElem?.Id;
+        }
+
+        #endregion
+
+        #region Ribbon
+
+        internal static BitmapImage BitmapToImageSource(Bitmap bm)
+        {
+            using (MemoryStream mem = new MemoryStream())
             {
-                m_views.Add(x);
+                bm.Save(mem, System.Drawing.Imaging.ImageFormat.Png);
+                mem.Position = 0;
+                BitmapImage bmi = new BitmapImage();
+                bmi.BeginInit();
+                bmi.StreamSource = mem;
+                bmi.CacheOption = BitmapCacheOption.OnLoad;
+                bmi.EndInit();
+
+                return bmi;
+            }
+        }
+
+        internal static RibbonPanel CreateRibbonPanel(UIControlledApplication app, string tabName, string panelName)
+        {
+            RibbonPanel curPanel = GetRibbonPanelByName(app, tabName, panelName);
+
+            if (curPanel == null)
+                curPanel = app.CreateRibbonPanel(tabName, panelName);
+
+            return curPanel;
+        }
+
+        private static RibbonPanel GetRibbonPanelByName(UIControlledApplication app, string tabName, string panelName)
+        {
+            foreach (RibbonPanel tempPanel in app.GetRibbonPanels(tabName))
+            {
+                if (tempPanel.Name == panelName)
+                    return tempPanel;
             }
 
-            return m_views;
+            return null;
         }
+
+        #endregion
+
+        #region Schedules
 
         internal static ViewSchedule GetScheduleByNameContains(Document doc, string scheduleString)
         {
-            List<ViewSchedule> m_scheduleList = GetAllSchedules(doc);           
+            List<ViewSchedule> m_scheduleList = GetAllSchedules(doc);
 
             foreach (ViewSchedule curSchedule in m_scheduleList)
             {
@@ -367,119 +266,163 @@ namespace CreateSchedules
             return m_returnList;
         }
 
-        //internal static ScheduleField FindScheduleField(ViewSchedule newFloorSched, Parameter paramName)
-        //{
-        //    ScheduleDefinition definition = newFloorSched.Definition;
-        //    ScheduleField foundField = null;
-        //    ElementId paramId = new ElementId(paramName);
-
-        //    foreach (ScheduleFieldId fieldId in definition.GetFieldOrder())
-        //    {
-        //        foundField = definition.GetField(fieldId);
-        //        if (foundField.ParameterId == paramId)
-        //        {
-        //            return foundField;
-        //        }
-        //    }
-
-        //    return null;
-        //}
-
-        #region Design options
-        internal static List<DesignOption> getAllDesignOptions(Document curDoc)
+        internal static ViewSchedule CreateAreaSchedule(Document doc, string schedName, AreaScheme curAreaScheme)
         {
-            FilteredElementCollector curCol = new FilteredElementCollector(curDoc);
-            curCol.OfCategory(BuiltInCategory.OST_DesignOptions);
+            ElementId catId = new ElementId(BuiltInCategory.OST_Areas);
+            ViewSchedule newSchedule = ViewSchedule.CreateSchedule(doc, catId, curAreaScheme.Id);
+            newSchedule.Name = schedName;
 
-            List<DesignOption> doList = new List<DesignOption>();
-            foreach (DesignOption curOpt in curCol)
-            {
-                doList.Add(curOpt);
-            }
-
-            return doList;
+            return newSchedule;
         }
 
-        internal static DesignOption getDesignOptionByName(Document curDoc, string designOpt)
+        internal static ViewSchedule CreateSchedule(Document doc, BuiltInCategory curCat, string name)
         {
-            //get all design options
-            List<DesignOption> doList = getAllDesignOptions(curDoc);
+            ElementId catId = new ElementId(curCat);
+            ViewSchedule newSchedule = ViewSchedule.CreateSchedule(doc, catId);
+            newSchedule.Name = name;
 
-            foreach (DesignOption curOpt in doList)
+            return newSchedule;
+        }
+
+        internal static void AddFieldsToSchedule(Document doc, ViewSchedule newSched, List<Parameter> paramList)
+        {
+            foreach (Parameter curParam in paramList)
             {
-                if (curOpt.Name == designOpt)
+                SchedulableField newField = new SchedulableField(ScheduleFieldType.Instance, curParam.Id);
+                newSched.Definition.AddField(newField);
+            }
+        }
+
+        #endregion
+
+        #region String
+
+        internal static string GetStringBetweenCharacters(string input, string charFrom, string charTo)
+        {
+            //string cleanInput = CleanSheetNumber(input);
+
+            int posFrom = input.IndexOf(charFrom);
+            if (posFrom != -1) //if found char
+            {
+                int posTo = input.IndexOf(charTo, posFrom + 1);
+                if (posTo != -1) //if found char
                 {
-                    return curOpt;
+                    return input.Substring(posFrom + 1, posTo - posFrom - 1);
+                }
+            }
+
+            return string.Empty;
+        }
+
+        #endregion       
+
+        #region Views
+
+        public static List<View> GetAllViews(Document curDoc)
+        {
+            FilteredElementCollector m_colviews = new FilteredElementCollector(curDoc);
+            m_colviews.OfCategory(BuiltInCategory.OST_Views);
+
+            List<View> m_views = new List<View>();
+            foreach (View x in m_colviews.ToElements())
+            {
+                m_views.Add(x);
+            }
+
+            return m_views;
+        }
+
+        internal static List<ViewPlan> GetAllAreaPlans(Document curDoc)
+        {
+            List<ViewPlan> returnList = new List<ViewPlan>();
+            List<ViewPlan> viewList = GetAllViewPlans(curDoc);
+
+            foreach (View x in viewList)
+            {
+                if (x.ViewType == ViewType.AreaPlan)
+                {
+                    returnList.Add((ViewPlan)x);
+                }
+            }
+
+            return returnList;
+        }
+
+        public static List<ViewPlan> GetAllViewPlans(Document curDoc)
+        {
+            List<ViewPlan> returnList = new List<ViewPlan>();
+
+            FilteredElementCollector viewCollector = new FilteredElementCollector(curDoc);
+            viewCollector.OfCategory(BuiltInCategory.OST_Views);
+            viewCollector.OfClass(typeof(ViewPlan)).ToElements();
+
+            foreach (ViewPlan vp in viewCollector)
+            {
+                if (vp.IsTemplate == false)
+                    returnList.Add(vp);
+            }
+
+            return returnList;
+        }
+
+        internal static ViewPlan GetAreaPlanByViewFamilyName(Document doc, string vftName)
+        {
+            FilteredElementCollector collector = new FilteredElementCollector(doc);
+            collector.OfClass(typeof(ViewPlan));
+
+            foreach (ViewPlan curViewPlan in collector)
+            {
+                if (curViewPlan.ViewType == ViewType.AreaPlan)
+                {
+                    ViewFamilyType curVFT = doc.GetElement(curViewPlan.GetTypeId()) as ViewFamilyType;
+
+                    if (curVFT.Name == vftName)
+                        return curViewPlan;
                 }
             }
 
             return null;
         }
 
-        internal static ElementId GetElementIdFromSharedParameter(Document curDoc, string paramName)
+        #endregion        
+
+        #region View Templates
+
+        public static View GetViewTemplateByName(Document curDoc, string viewTemplateName)
         {
-            // Step 1: Retrieve the shared parameter definition by name
-            DefinitionFile definitionFile = curDoc.Application.OpenSharedParameterFile();
-            DefinitionGroup definitionGroup = definitionFile.Groups.get_Item("YourSharedParameterGroup"); // Replace "YourSharedParameterGroup" with the actual group name where your shared parameter is defined
-            Definition definition = definitionGroup.Definitions.get_Item(paramName);
+            List<View> viewTemplateList = GetAllViewTemplates(curDoc);
 
-            // Step 2: Get the parameter from the element using the definition
-            FilteredElementCollector m_collector = new FilteredElementCollector(curDoc)
-                .OfCategory(BuiltInCategory.OST_Areas); // Filter for the specific element type (e.g., FamilyInstance)
-            ParameterElement parameterElement = m_collector as ParameterElement
-                .FirstOrDefault(elem => elem.GetOrderedParameters()
-                .Cast<Parameter>()
-                .Any(param => param.Definition.Name == paramName));
-
-            if (parameterElement == null)
+            foreach (View v in viewTemplateList)
             {
-                // The shared parameter is not found on any element
-                return ElementId.InvalidElementId;
+                if (v.Name == viewTemplateName)
+                {
+                    return v;
+                }
             }
 
-            // Step 3: Extract the element ID from the parameter
-            ElementId elementId = parameterElement.Id;
-            return elementId;
+            return null;
         }
 
-        #endregion
-
-        internal static ElementId GetProjectParameterId(Document doc, string name)
-
+        public static List<View> GetAllViewTemplates(Document curDoc)
         {
+            List<View> returnList = new List<View>();
+            List<View> viewList = GetAllViews(curDoc);
 
-            ParameterElement pElem = new FilteredElementCollector(doc)
+            //loop through views and check if is view template
+            foreach (View v in viewList)
+            {
+                if (v.IsTemplate == true)
+                {
+                    //add view template to list
+                    returnList.Add(v);
+                }
+            }
 
-                .OfClass(typeof(ParameterElement))
-
-                .Cast<ParameterElement>()
-
-                .Where(e => e.Name.Equals(name))
-
-                .FirstOrDefault();
-
-
-            return pElem?.Id;
-
+            return returnList;
         }
 
-        //Parameter doParam = m_fp.get_Parameter(BuiltInParameter.VIEWER_OPTION_VISIBILITY);
-
-        //                                try
-
-        //                                {
-
-        //                                    doParam.Set(curDO.Id);
-
-        //                                }
-
-        //                                catch (Exception)
-
-        //                                {
-
-        //                                    TaskDialog.Show("Error", "Could not set design option parameter.");
-
-        //                                }
+        #endregion        
+       
     }
 }
 
