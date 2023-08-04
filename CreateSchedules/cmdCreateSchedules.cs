@@ -193,8 +193,6 @@ namespace CreateSchedules
 
                                 foreach (View curView in areaViews)
                                 {
-                                    uidoc.ActiveView = curView;
-
                                     //set the color scheme
 
                                     Parameter level = curView.LookupParameter("Associated Level");
@@ -284,11 +282,11 @@ namespace CreateSchedules
                                 // create the fields to use for filter and formatting
 
                                 //// get element Id of the parameters
-                                ElementId catFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Area Category");
-                                ElementId comFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Comments");
-                                ElementId nameFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Name");
-                                ElementId areaFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Area");
-                                ElementId numFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Number");
+                                ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "Area Category");
+                                ElementId comFieldId = Utils.GetProjectParameterId(curDoc, "Comments");
+                                ElementId nameFieldId = Utils.GetProjectParameterId(curDoc, "Name");
+                                ElementId areaFieldId = Utils.GetProjectParameterId(curDoc, "Area");
+                                ElementId numFieldId = Utils.GetProjectParameterId(curDoc, "Number");
 
                                 ScheduleField catField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, catFieldId);
                                 catField.IsHidden = true;
@@ -526,9 +524,9 @@ namespace CreateSchedules
                                 // create the fields to use for filter and formatting
 
                                 // get element Id of the parameters
-                                ElementId catFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Area Category");
-                                ElementId nameFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Name");                                
-                                ElementId areaFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Area");
+                                ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "Area Category");
+                                ElementId nameFieldId = Utils.GetProjectParameterId(curDoc, "Name");                                
+                                ElementId areaFieldId = Utils.GetProjectParameterId(curDoc, "Area");
 
                                 ScheduleField catField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, catFieldId);
                                 catField.IsHidden = true;
@@ -572,10 +570,10 @@ namespace CreateSchedules
                                 // create the fields to use for filter and formatting
 
                                 // get element Id of the parameters
-                                ElementId catFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Area Category");
-                                ElementId nameFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Name");
-                                ElementId levelFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Level");
-                                ElementId areaFieldId = Utils.GetElementIdFromSharedParameter(curDoc, "Area");
+                                ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "Area Category");
+                                ElementId nameFieldId = Utils.GetProjectParameterId(curDoc, "Name");
+                                ElementId levelFieldId = Utils.GetProjectParameterId(curDoc, "Level");
+                                ElementId areaFieldId = Utils.GetProjectParameterId(curDoc, "Area");
 
 
                                 ScheduleField catField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, catFieldId);
