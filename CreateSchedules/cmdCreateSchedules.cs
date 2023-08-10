@@ -113,18 +113,20 @@ namespace CreateSchedules
 
                         ViewSchedule dupSched = listSched.FirstOrDefault();
 
-                        Element viewSched = curDoc.GetElement(dupSched.Duplicate(ViewDuplicateOption.Duplicate));
+                        ViewSchedule veneerSched = curDoc.GetElement(dupSched.Duplicate(ViewDuplicateOption.Duplicate)) as ViewSchedule;
 
                         // rename the duplicated schedule to the new elevation
-
-                        string originalName = viewSched.Name;
+                        string originalName = veneerSched.Name;
                         string[] schedTitle = originalName.Split('-');                        
 
-                        viewSched.Name = schedTitle[0] + "- Elevation " + Globals.ElevDesignation;
+                        veneerSched.Name = schedTitle[0] + "- Elevation " + Globals.ElevDesignation;
 
                         // set the design option to the specified elevation designation
+                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation : " + Globals.ElevDesignation);
 
-                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation : " + Globals.ElevDesignation); // !!! this code throws an error
+                        Parameter doParam = veneerSched.get_Parameter(BuiltInParameter.VIEWER_OPTION_VISIBILITY);
+
+                        doParam.Set(curOption.Id); //??? the code is getting the right option, but it's not changing anything in the model
                     }
                 }
 
