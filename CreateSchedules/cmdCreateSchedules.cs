@@ -74,11 +74,10 @@ namespace CreateSchedules
 
                         ViewSchedule dupSched = listSched.FirstOrDefault();
 
-                        Element viewSched = curDoc.GetElement(dupSched.Duplicate(ViewDuplicateOption.Duplicate));
+                        ViewSchedule indexSched = curDoc.GetElement(dupSched.Duplicate(ViewDuplicateOption.Duplicate)) as ViewSchedule;
 
                         // rename the duplicated schedule to the new elevation
-
-                        string originalName = viewSched.Name;
+                        string originalName = indexSched.Name;
                         string[] schedTitle = originalName.Split('C');
 
                         string curTitle = schedTitle[0];
@@ -86,11 +85,16 @@ namespace CreateSchedules
                         string lastChar = curTitle.Substring(curTitle.Length - 2);
                         string newLast = Globals.ElevDesignation.ToString();
 
-                        viewSched.Name = curTitle.Replace(lastChar, newLast);
+                        indexSched.Name = curTitle.Replace(lastChar, newLast);
 
-                        // set the design option to the specified elevation designation
+                        // update the filter value to the new elevation code filter
+                        ScheduleFilter codeFilter = indexSched.Definition.GetFilter(0);
 
-                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation : " + lastChar); // !!! this code throws an error
+                        if (codeFilter.IsStringValue)
+                        {
+                            codeFilter.SetValue("4");
+                            indexSched.Definition.SetFilter(0, codeFilter);
+                        }
                     }
                 }
 
