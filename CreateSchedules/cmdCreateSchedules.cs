@@ -276,7 +276,7 @@ namespace CreateSchedules
                                 List<string> paramNames = new List<string>() { "Area Category", "Comments", "Name", "Area", "Number" };
 
                                 // get the associated parameters & add them to the schedule
-                                List<Parameter> paramsFloorSingle = Utils.GetParametersByName(curDoc, paramNames);                                
+                                List<Parameter> paramsFloorSingle = Utils.GetParametersByName(curDoc, paramNames, BuiltInCategory.OST_Areas);                                
                                 Utils.AddFieldsToSchedule(curDoc, newFloorSched, paramsFloorSingle);
 
                                 // create the fields to use for filter and formatting
@@ -329,7 +329,7 @@ namespace CreateSchedules
                             else if (floorNum == 2 || floorNum == 3)
                             {
                                 List<string> paramNames = new List<string>() { "Area Category", "Comments", "Level", "Name", "Area", "Number" };
-                                List<Parameter> paramsFloorMulti = Utils.GetParametersByName(curDoc, paramNames);
+                                List<Parameter> paramsFloorMulti = Utils.GetParametersByName(curDoc, paramNames, BuiltInCategory.OST_Areas);
 
                                 Utils.AddFieldsToSchedule(curDoc, newFloorSched, paramsFloorMulti);
 
@@ -518,7 +518,7 @@ namespace CreateSchedules
                                 List<string> paramNames = new List<string>() { "Area Category", "Name", "Area" };
 
                                 // get the associated parameters & add them to the schedule
-                                List<Parameter> paramsFloorSingle = Utils.GetParametersByName(curDoc, paramNames);
+                                List<Parameter> paramsFloorSingle = Utils.GetParametersByName(curDoc, paramNames, BuiltInCategory.OST_Areas);
                                 Utils.AddFieldsToSchedule(curDoc, newFrameSched, paramsFloorSingle);
 
                                 // create the fields to use for filter and formatting
@@ -564,7 +564,7 @@ namespace CreateSchedules
                                 List<string> paramNames = new List<string>() { "Area Category", "Name", "Level", "Area" };
 
                                 // get the associated parameters & add them to the schedule
-                                List<Parameter> paramsFloorSingle = Utils.GetParametersByName(curDoc, paramNames);
+                                List<Parameter> paramsFloorSingle = Utils.GetParametersByName(curDoc, paramNames, BuiltInCategory.OST_Areas);
                                 Utils.AddFieldsToSchedule(curDoc, newFrameSched, paramsFloorSingle);
 
                                 // create the fields to use for filter and formatting
@@ -717,7 +717,7 @@ namespace CreateSchedules
                         List<string> paramNames = new List<string>() { "Area", "1/150 Ratio" }; // ??? add calculated parameter
 
                         // get the associated parameters & add them to the schedule
-                        List<Parameter> paramsAtticSingle = Utils.GetParametersByName(curDoc, paramNames);
+                        List<Parameter> paramsAtticSingle = Utils.GetParametersByName(curDoc, paramNames, BuiltInCategory.OST_Areas);
                         Utils.AddFieldsToSchedule(curDoc, newAtticSched, paramsAtticSingle);
                     }
 
@@ -727,7 +727,7 @@ namespace CreateSchedules
                         List<string> paramNames = new List<string>() { "Name", "Area", "1/150 Ratio" }; // ??? add calculated parameter
 
                         // get the associated parameters & add them to the schedule
-                        List<Parameter> paramsAtticMulti = Utils.GetParametersByName(curDoc, paramNames);
+                        List<Parameter> paramsAtticMulti = Utils.GetParametersByName(curDoc, paramNames, BuiltInCategory.OST_Areas);
                         Utils.AddFieldsToSchedule(curDoc, newAtticSched, paramsAtticMulti);
                     }
 

@@ -143,22 +143,22 @@ namespace CreateSchedules
 
         #region Parameters
 
-        internal static List<Parameter> GetParametersByName(Document doc, List<string> paramNames)
+        internal static List<Parameter> GetParametersByName(Document doc, List<string> paramNames, BuiltInCategory cat)
         {
-            List<Parameter> returnList = new List<Parameter>();
+            List<Parameter> m_returnList = new List<Parameter>();
 
             FilteredElementCollector collector = new FilteredElementCollector(doc);
-            collector.OfCategory(BuiltInCategory.OST_Areas);
+            collector.OfCategory(cat);
 
             foreach (string curName in paramNames)
             {
                 Parameter curParam = collector.FirstElement().LookupParameter(curName);
 
                 if (curParam != null)
-                    returnList.Add(curParam);
+                    m_returnList.Add(curParam);
             }
 
-            return returnList;
+            return m_returnList;
         }
 
         internal static ElementId GetProjectParameterId(Document doc, string name)
