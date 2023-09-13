@@ -172,6 +172,16 @@ namespace CreateSchedules
             return pElem?.Id;
         }
 
+        internal static ElementId GetBuiltInParameterId(Document doc, BuiltInCategory cat, BuiltInParameter bip)
+        {
+            FilteredElementCollector collector = new FilteredElementCollector(doc);
+            collector.OfCategory(cat);
+
+            Parameter curParam = collector.FirstElement().get_Parameter(bip);
+
+            return curParam?.Id;
+        }
+
         #endregion
 
         #region Ribbon

@@ -29,6 +29,22 @@ namespace CreateSchedules
             Application app = uiapp.Application;
             Document curDoc = uidoc.Document;
 
+            // set some variables for paramter values
+            string newFilter = "";
+
+            if (Globals.ElevDesignation == "A")
+                newFilter = "1";
+            else if (Globals.ElevDesignation == "B")
+                newFilter = "2";
+            else if (Globals.ElevDesignation == "C")
+                newFilter = "3";
+            else if (Globals.ElevDesignation == "D")
+                newFilter = "4";
+            else if (Globals.ElevDesignation == "S")
+                newFilter = "5";
+            else if (Globals.ElevDesignation == "T")
+                newFilter = "6";
+
             frmCreateSchedules curForm = new frmCreateSchedules()
             {
                 Width = 420,
@@ -92,7 +108,7 @@ namespace CreateSchedules
 
                         if (codeFilter.IsStringValue)
                         {
-                            codeFilter.SetValue("4");
+                            codeFilter.SetValue(newFilter);
                             indexSched.Definition.SetFilter(0, codeFilter);
                         }
                     }
@@ -278,22 +294,14 @@ namespace CreateSchedules
                         {
                             if (floorNum == 1)
                             {
-                                // create a list of the fields for the schedule
-                                List<string> paramNames = new List<string>() { "Area Category", "Comments", "Name", "Area", "Number" };
-
-                                // get the associated parameters & add them to the schedule
-                                List<Parameter> paramsFloorSingle = Utils.GetParametersByName(curDoc, paramNames, BuiltInCategory.OST_Areas);                                
-                                Utils.AddFieldsToSchedule(curDoc, newFloorSched, paramsFloorSingle);
-
-                                // create the fields to use for filter and formatting
-
-                                //// get element Id of the parameters
+                                // get element Id of the fields to be used in the schedule
                                 ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "Area Category");
-                                ElementId comFieldId = Utils.GetProjectParameterId(curDoc, "Comments");
-                                ElementId nameFieldId = Utils.GetProjectParameterId(curDoc, "Name");
-                                ElementId areaFieldId = Utils.GetProjectParameterId(curDoc, "Area");
-                                ElementId numFieldId = Utils.GetProjectParameterId(curDoc, "Number");
+                                ElementId comFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
+                                ElementId nameFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_NAME);
+                                ElementId areaFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_AREA);
+                                ElementId numFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_NUMBER);
 
+                                // create the fields and assign formatting properties
                                 ScheduleField catField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, catFieldId);
                                 catField.IsHidden = true;
 
@@ -326,10 +334,13 @@ namespace CreateSchedules
                                 // set the sorting
                                 ScheduleSortGroupField catSort = new ScheduleSortGroupField(catField.FieldId, ScheduleSortOrder.Ascending);
                                 catSort.ShowFooter = true;
-                                catSort.ShowFooterCount = true; //??? how to set the footer to be "Title and Totals"
+                                catSort.ShowFooterTitle = true;
+                                catSort.ShowFooterCount = true;
                                 catSort.ShowBlankLine = true;
+                                newFloorSched.Definition.AddSortGroupField(catSort);
 
                                 ScheduleSortGroupField comSort = new ScheduleSortGroupField(comField.FieldId, ScheduleSortOrder.Ascending);
+                                newFloorSched.Definition.AddSortGroupField(comSort);
                             }
 
                             else if (floorNum == 2 || floorNum == 3)
