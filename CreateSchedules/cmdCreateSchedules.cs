@@ -319,16 +319,16 @@ namespace CreateSchedules
                                 areaField.ColumnHeading = "Area";
                                 areaField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
                                 areaField.HorizontalAlignment = ScheduleHorizontalAlignment.Right;
-                                // areaField.IsCalculatedField = true;  // ??? can this be set to "Calculate totals"
-
+                                areaField.DisplayType = ScheduleFieldDisplayType.Totals;
+                     
                                 ScheduleField numField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, numFieldId);
                                 numField.IsHidden = true;
 
                                 // create the filters
-                                ScheduleFilter catFilter = new ScheduleFilter(catField.FieldId, ScheduleFilterType.Contains, "Options");
+                                ScheduleFilter catFilter = new ScheduleFilter(catField.FieldId, ScheduleFilterType.NotContains, "Options");
                                 newFloorSched.Definition.AddFilter(catFilter);
 
-                                ScheduleFilter areaFilter = new ScheduleFilter(areaField.FieldId, ScheduleFilterType.GreaterThan, "0 SF");
+                                ScheduleFilter areaFilter = new ScheduleFilter(areaField.FieldId, ScheduleFilterType.HasValue);
                                 newFloorSched.Definition.AddFilter(areaFilter);
 
                                 // set the sorting
@@ -341,29 +341,71 @@ namespace CreateSchedules
 
                                 ScheduleSortGroupField comSort = new ScheduleSortGroupField(comField.FieldId, ScheduleSortOrder.Ascending);
                                 newFloorSched.Definition.AddSortGroupField(comSort);
+
+                                newFloorSched.Definition.IsItemized = false;
                             }
 
                             else if (floorNum == 2 || floorNum == 3)
                             {
-                                List<string> paramNames = new List<string>() { "Area Category", "Comments", "Level", "Name", "Area", "Number" };
-                                List<Parameter> paramsFloorMulti = Utils.GetParametersByName(curDoc, paramNames, BuiltInCategory.OST_Areas);
+                                // get element Id of the fields to be used in the schedule
+                                ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "Area Category");
+                                ElementId comFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
+                                ElementId levelFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.LEVEL_NAME);
+                                ElementId nameFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_NAME);
+                                ElementId areaFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_AREA);
+                                ElementId numFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_NUMBER);
 
-                                Utils.AddFieldsToSchedule(curDoc, newFloorSched, paramsFloorMulti);
+                                // create the fields and assign formatting properties
+                                ScheduleField catField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, catFieldId);
+                                catField.IsHidden = true;
 
-                                ScheduleField catField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[0].Id);
-                                ScheduleField commentField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[1].Id);
-                                ScheduleField levelField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[1].Id);
-                                ScheduleField nameField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[3].Id);
-                                ScheduleField areaField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[4].Id);
-                                ScheduleField numField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, paramsFloorMulti[5].Id);
+                                ScheduleField comField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, comFieldId);
+                                comField.IsHidden = true;
 
-                                ScheduleFilter catFilter = new ScheduleFilter(catField.FieldId, ScheduleFilterType.Contains, "Options");
-                                ScheduleFilter areaFilter = new ScheduleFilter(areaField.FieldId, ScheduleFilterType.GreaterThan, "0 SF");
+                                ScheduleField levelField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, levelFieldId);
+                                levelField.IsHidden = false;
+                                levelField.ColumnHeading = "Level";
+                                levelField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                                levelField.HorizontalAlignment = ScheduleHorizontalAlignment.Left;
 
+                                ScheduleField nameField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, nameFieldId);
+                                nameField.IsHidden = true;
+
+                                ScheduleField areaField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, areaFieldId);
+                                areaField.IsHidden = false;
+                                areaField.ColumnHeading = "Area";
+                                areaField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                                areaField.HorizontalAlignment = ScheduleHorizontalAlignment.Right;
+                                areaField.DisplayType = ScheduleFieldDisplayType.Totals;
+
+                                ScheduleField numField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, numFieldId);
+                                numField.IsHidden = true;
+
+                                // create the filters
+                                ScheduleFilter catFilter = new ScheduleFilter(catField.FieldId, ScheduleFilterType.NotContains, "Options");
+                                newFloorSched.Definition.AddFilter(catFilter);
+
+                                ScheduleFilter areaFilter = new ScheduleFilter(areaField.FieldId, ScheduleFilterType.HasValue);
+                                newFloorSched.Definition.AddFilter(areaFilter);
+
+                                // set the sorting
                                 ScheduleSortGroupField catSort = new ScheduleSortGroupField(catField.FieldId, ScheduleSortOrder.Ascending);
-                                ScheduleSortGroupField commentSort = new ScheduleSortGroupField(commentField.FieldId, ScheduleSortOrder.Ascending);
+                                catSort.ShowFooter = true;
+                                catSort.ShowFooterTitle = true;
+                                catSort.ShowFooterCount = true;
+                                catSort.ShowBlankLine = true;                           
+                                newFloorSched.Definition.AddSortGroupField(catSort);
+
+                                ScheduleSortGroupField comSort = new ScheduleSortGroupField(comField.FieldId, ScheduleSortOrder.Ascending);
+                                newFloorSched.Definition.AddSortGroupField(comSort);
+
                                 ScheduleSortGroupField nameSort = new ScheduleSortGroupField(nameField.FieldId, ScheduleSortOrder.Ascending);
+                                nameSort.ShowHeader = true;
+                                nameSort.ShowFooter = true;
+                                newFloorSched.Definition.AddSortGroupField(nameSort);
+
                                 ScheduleSortGroupField levelSort = new ScheduleSortGroupField(levelField.FieldId, ScheduleSortOrder.Ascending);
+                                newFloorSched.Definition.AddSortGroupField(levelSort);
                             }
                         }
                     }
