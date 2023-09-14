@@ -137,12 +137,12 @@ namespace CreateSchedules
 
                         veneerSched.Name = schedTitle[0] + "- Elevation " + Globals.ElevDesignation;
 
-                        // set the design option to the specified elevation designation
-                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation : " + Globals.ElevDesignation);
+                        //// set the design option to the specified elevation designation
+                        //DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation : " + Globals.ElevDesignation);
 
-                        Parameter doParam = veneerSched.get_Parameter(BuiltInParameter.VIEWER_OPTION_VISIBILITY);
+                        //Parameter doParam = veneerSched.get_Parameter(BuiltInParameter.VIEWER_OPTION_VISIBILITY);
 
-                        doParam.Set(curOption.Id); //??? the code is getting the right option, but it's not changing anything in the model
+                        //doParam.Set(curOption.Id); //??? the code is getting the right option, but it's not changing anything in the model
                     }
                 }
 
