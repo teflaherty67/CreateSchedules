@@ -282,7 +282,7 @@ namespace CreateSchedules
                         // if the floor area plans exist, create the schedule
 
                         // get the Area category Id
-                        ElementId areaCatId = new ElementId(BuiltInCategory.OST_Areas); // ??? is this needed
+                        //ElementId areaCatId = new ElementId(BuiltInCategory.OST_Areas); // ??? is this needed
 
                         // get the area scheme for the schedule
                         AreaScheme curAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Floor");
