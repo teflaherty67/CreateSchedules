@@ -344,7 +344,6 @@ namespace CreateSchedules
 
                                 newFloorSched.Definition.IsItemized = false;
                             }
-
                             else if (floorNum == 2 || floorNum == 3)
                             {
                                 // get element Id of the fields to be used in the schedule
