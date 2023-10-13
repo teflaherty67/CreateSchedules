@@ -1,4 +1,5 @@
 ﻿using Autodesk.Revit.DB;
+using CreateSchedules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,58 +8,49 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace CreateSchedules
+if (chbVeneerResult)
 {
-    internal class ChatGPT
-    {
-        ViewSchedule schedIndex = Utils.GetScheduleByNameContains(curDoc, "Sheet Index - Elevation " + Globals.ElevDesignation);
-
-if (chbIndexResult && schedIndex == null)
-{
-    DuplicateAndRenameSheetIndexSchedule(curDoc);
-    }
-
-    void DuplicateAndRenameSheetIndexSchedule(Document doc)
-    {
-        // Duplicate the first schedule found with "Sheet Index" in the name
-        List<ViewSchedule> listSched = Utils.GetAllScheduleByNameContains(doc, "Sheet Index");
-        ViewSchedule dupSched = listSched.FirstOrDefault();
-
-        if (dupSched == null)
-        {
-            return; // No schedule to duplicate
-        }
-
-        ViewSchedule indexSched = doc.GetElement(dupSched.Duplicate(ViewDuplicateOption.Duplicate)) as ViewSchedule;
-
-        if (indexSched == null)
-        {
-            return; // Duplicate operation failed
-        }
-
-        // Rename the duplicated schedule to the new elevation
-        string originalName = indexSched.Name;
-        string[] schedTitle = originalName.Split('C');
-
-        if (schedTitle.Length < 2)
-        {
-            return; // Invalid schedule name format
-        }
-
-        string curTitle = schedTitle[0];
-        string lastChar = curTitle.Substring(curTitle.Length - 2);
-        string newLast = Globals.ElevDesignation.ToString();
-
-        indexSched.Name = curTitle.Replace(lastChar, newLast);
-
-        // Update the filter value to the new elevation code filter
-        ScheduleFilter codeFilter = indexSched.Definition.GetFilter(0);
-
-        if (codeFilter.IsStringValue)
-        {
-            codeFilter.SetValue(newFilter);
-            indexSched.Definition.SetFilter(0, codeFilter);
-        }
-    }
-
+    DuplicateAndConfigureVeneerSchedule(curDoc);
 }
+
+void DuplicateAndConfigureVeneerSchedule(Document doc)
+{
+    // Find the first schedule with "Exterior Veneer Calculations" in the name
+    List<ViewSchedule> listSched = Utils.GetAllScheduleByNameContains(doc, "Exterior Veneer Calculations");
+    ViewSchedule dupSched = listSched.FirstOrDefault();
+
+    if (dupSched == null)
+    {
+        return; // No schedule to duplicate
+    }
+
+    // Duplicate the schedule
+    ViewSchedule veneerSched = doc.GetElement(dupSched.Duplicate(ViewDuplicateOption.Duplicate)) as ViewSchedule;
+
+    if (veneerSched == null)
+    {
+        return; // Duplicate operation failed
+    }
+
+    // Rename the duplicated schedule
+    string originalName = veneerSched.Name;
+    string[] schedTitle = originalName.Split('-');
+
+    if (schedTitle.Length >= 1)
+    {
+        veneerSched.Name = schedTitle[0] + "- Elevation " + Globals.ElevDesignation;
+    }
+
+    // Set the design option to the specified elevation designation
+    DesignOption curOption = Utils.getDesignOptionByName(doc, "Elevation : " + Globals.ElevDesignation);
+
+    if (curOption != null)
+    {
+        Parameter doParam = veneerSched.get_Parameter(BuiltInParameter.VIEWER_OPTION_VISIBILITY);
+
+        if (doParam != null)
+        {
+            doParam.Set(curOption.Id);
+        }
+    }
 }

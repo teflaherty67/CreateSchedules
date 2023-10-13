@@ -431,9 +431,40 @@ namespace CreateSchedules
             return returnList;
         }
 
-        internal static void DuplicateAndRenameSheetIndex(Document curDoc)
+        internal static void DuplicateAndRenameSheetIndex(Document curDoc, string newFilter)
         {
-            throw new NotImplementedException();
+            // duplicate the first schedule found with "Sheet Index" in the name
+            List<ViewSchedule> listSched = Utils.GetAllScheduleByNameContains(curDoc, "Sheet Index");
+            ViewSchedule dupSched = listSched.FirstOrDefault();
+
+            if (dupSched == null)
+            {
+                // call another method to create it
+
+                return; // no schedule to duplicate
+            }
+
+            ViewSchedule indexSched = curDoc.GetElement(dupSched.Duplicate(ViewDuplicateOption.Duplicate)) as ViewSchedule;
+
+            // rename the duplicated schedule to the new elevation
+            string originalName = indexSched.Name;
+            string[] schedTitle = originalName.Split('C');
+
+            string curTitle = schedTitle[0];
+
+            string lastChar = curTitle.Substring(curTitle.Length - 2);
+            string newLast = Globals.ElevDesignation.ToString();
+
+            indexSched.Name = curTitle.Replace(lastChar, newLast);
+
+            // update the filter value to the new elevation code filter
+            ScheduleFilter codeFilter = indexSched.Definition.GetFilter(0);
+
+            if (codeFilter.IsStringValue)
+            {
+                codeFilter.SetValue(newFilter);
+                indexSched.Definition.SetFilter(0, codeFilter);
+            }
         }
 
         #endregion
