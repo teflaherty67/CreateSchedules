@@ -206,6 +206,7 @@ namespace CreateSchedules
                                 ViewPlan areaFloor = ViewPlan.CreateAreaPlan(curDoc, schemeFloorId, curLevelId);
                                 areaFloor.Name = "Floor_" + countFloor.ToString();
                                 areaFloor.ViewTemplateId = vtFloorAreas.Id;
+                                areaFloor.SetColorFillSchemeId()
 
                                 areaViews.Add(areaFloor);
 
