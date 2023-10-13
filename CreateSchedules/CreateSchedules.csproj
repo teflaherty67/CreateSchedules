@@ -57,7 +57,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
-    <Compile Include="ChatGPT.cs" />
     <Compile Include="Classes\clsButtonDataClass.cs" />
     <Compile Include="Classes\clsAreaData.cs" />
     <Compile Include="Classes\clsFloorAreaData.cs" />

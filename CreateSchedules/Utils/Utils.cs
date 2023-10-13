@@ -439,7 +439,7 @@ namespace CreateSchedules
 
             if (dupSched == null)
             {
-                // call another method to create it
+                // call another method to create one
 
                 return; // no schedule to duplicate
             }
@@ -465,6 +465,36 @@ namespace CreateSchedules
                 codeFilter.SetValue(newFilter);
                 indexSched.Definition.SetFilter(0, codeFilter);
             }
+        }
+
+        internal static void DuplicateAndConfigureVeneerSchedule(Document curDoc)
+        {
+            // duplicate the first schedule with "Exterior Venner Calculations" in the name
+            List<ViewSchedule> listSched = Utils.GetAllScheduleByNameContains(curDoc, "Exterior Veneer Calculations");
+            ViewSchedule dupSched = listSched.FirstOrDefault();
+
+            if (dupSched == null)
+            {
+                // call another method to create one
+
+                return; // no schedule to duplicate
+            }
+
+            // duplicate the schedule
+            ViewSchedule veneerSched = curDoc.GetElement(dupSched.Duplicate(ViewDuplicateOption.Duplicate)) as ViewSchedule;
+
+            // rename the duplicated schedule to the new elevation
+            string originalName = veneerSched.Name;
+            string[] schedTitle = originalName.Split('-');
+
+            veneerSched.Name = schedTitle[0] + "- Elevation " + Globals.ElevDesignation;
+
+            // set the design option to the specified elevation designation
+            DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation : " + Globals.ElevDesignation);
+
+            Parameter doParam = veneerSched.get_Parameter(BuiltInParameter.VIEWER_OPTION_VISIBILITY);
+
+            doParam.Set(curOption.Id); //??? the code is getting the right option, but it's not changing anything in the model
         }
 
         #endregion

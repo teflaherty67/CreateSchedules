@@ -92,30 +92,9 @@ namespace CreateSchedules
 
                 ViewSchedule veneerIndex = Utils.GetScheduleByNameContains(curDoc, "Exterior Veneer Calculations - Elevation " + Globals.ElevDesignation);
 
-                if (chbVeneerResult == true)
+                if (chbVeneerResult == true && veneerIndex == null)
                 {
-                    if (veneerIndex == null)
-                    {
-                        // duplicate the first schedule with "Exterior Venner Calculations" in the name
-                        List<ViewSchedule> listSched = Utils.GetAllScheduleByNameContains(curDoc, "Exterior Veneer Calculations");
-
-                        ViewSchedule dupSched = listSched.FirstOrDefault();
-
-                        ViewSchedule veneerSched = curDoc.GetElement(dupSched.Duplicate(ViewDuplicateOption.Duplicate)) as ViewSchedule;
-
-                        // rename the duplicated schedule to the new elevation
-                        string originalName = veneerSched.Name;
-                        string[] schedTitle = originalName.Split('-');                        
-
-                        veneerSched.Name = schedTitle[0] + "- Elevation " + Globals.ElevDesignation;
-
-                        // set the design option to the specified elevation designation
-                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation : " + Globals.ElevDesignation);
-
-                        Parameter doParam = veneerSched.get_Parameter(BuiltInParameter.VIEWER_OPTION_VISIBILITY);
-
-                        doParam.Set(curOption.Id); //??? the code is getting the right option, but it's not changing anything in the model
-                    }
+                    Utils.DuplicateAndConfigureVeneerSchedule(curDoc);
                 }
 
                 #endregion
@@ -161,11 +140,9 @@ namespace CreateSchedules
                                 levelWord = "Floor";
                             }
 
-                            List<Level> levelList = Utils.GetLevelByNameContains(curDoc, levelWord);
+                           List<Level> levelList = Utils.GetLevelByNameContains(curDoc, levelWord);
 
-                            ElementId schemeFloorId = schemeFloor.Id;
-
-                            List<View> areaViews = new List<View>();
+                           List<View> areaViews = new List<View>();
 
                             int countFloor = levelList.Count;
 
@@ -175,7 +152,7 @@ namespace CreateSchedules
 
                                 View vtFloorAreas = Utils.GetViewTemplateByName(curDoc, "10-Floor Area");
 
-                                ViewPlan areaFloor = ViewPlan.CreateAreaPlan(curDoc, schemeFloorId, curLevelId);
+                                ViewPlan areaFloor = ViewPlan.CreateAreaPlan(curDoc, schemeFloor.Id, curLevelId);
                                 areaFloor.Name = "Floor_" + countFloor.ToString();
                                 areaFloor.ViewTemplateId = vtFloorAreas.Id;
                                 
