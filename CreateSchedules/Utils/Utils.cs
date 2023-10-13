@@ -431,8 +431,13 @@ namespace CreateSchedules
             return returnList;
         }
 
-        #endregion        
-       
+        internal static void DuplicateAndRenameSheetIndex(Document curDoc)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
     }
 }
 

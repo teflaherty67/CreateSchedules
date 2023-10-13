@@ -81,7 +81,10 @@ namespace CreateSchedules
 
                 ViewSchedule schedIndex = Utils.GetScheduleByNameContains(curDoc, "Sheet Index - Elevation " + Globals.ElevDesignation);
 
-                if (chbIndexResult == true)
+                if (chbIndexResult == true && schedIndex == null)
+                {
+                    Utils.DuplicateAndRenameSheetIndex(curDoc);
+                }
                 {
                     if (schedIndex == null)
                     {
@@ -206,8 +209,7 @@ namespace CreateSchedules
                                 ViewPlan areaFloor = ViewPlan.CreateAreaPlan(curDoc, schemeFloorId, curLevelId);
                                 areaFloor.Name = "Floor_" + countFloor.ToString();
                                 areaFloor.ViewTemplateId = vtFloorAreas.Id;
-                                areaFloor.SetColorFillSchemeId()
-
+                                
                                 areaViews.Add(areaFloor);
 
                                 countFloor--;
