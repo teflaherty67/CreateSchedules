@@ -160,7 +160,7 @@ namespace CreateSchedules
                                 View vtFloorAreas = Utils.GetViewTemplateByName(curDoc, "10-Floor Area");
 
                                 ViewPlan areaFloor = ViewPlan.CreateAreaPlan(curDoc, schemeFloor.Id, curLevelId);
-                                areaFloor.Name = "Floor_" + countFloor.ToString();
+                                //areaFloor.Name = "Floor_" + countFloor.ToString();
                                 areaFloor.ViewTemplateId = vtFloorAreas.Id;
                                 
                                 areaViews.Add(areaFloor);
@@ -177,8 +177,12 @@ namespace CreateSchedules
 
                                     // create insertion points
                                     XYZ insStart = new XYZ(50, 0, 0);
+
                                     UV insPoint = new UV(insStart.X, insStart.Y);
+                                    UV offset = new UV(0, 8);
+
                                     XYZ tagInsert = new XYZ(50, 0, 0);
+                                    XYZ tagOffset = new XYZ(0, 8, 0);
 
                                     if (level.ToString() == "Lower Level")
                                     {
@@ -197,49 +201,75 @@ namespace CreateSchedules
                                     }
                                     else if (level.ToString() == "Main Level" || level.ToString() == "First Floor")
                                     {
-                                        // add these areas, can this be done as a data class?
+                                        // add these areas
+                                        List<clsFloorAreaData> areasMain = new List<clsFloorAreaData>
+                                        {
+                                            new clsFloorAreaData("1", "Living", "Total Covered", "A"),
+                                            new clsFloorAreaData("2", "Garage", "Total Covered", "B"),
+                                            new clsFloorAreaData("3", "Covered Patio", "Total Covered", "C"),
+                                            new clsFloorAreaData("4", "Covered Porch", "Total Covered", "D"),
+                                            new clsFloorAreaData("5", "Porte Cochere", "Total Covered", "E"),
+                                            new clsFloorAreaData("6", "Patio", "Total Uncovered", "F"),
+                                            new clsFloorAreaData("7", "Porch", "Total Uncovered", "G"),
+                                            new clsFloorAreaData("8", "Option", "Options", "H")
+                                        };
 
-                                        // need to set a range and put this in a loop that increments the insPoint
-
-
-                                        Area areaLiving1 = curDoc.Create.NewArea(areaFloor, insPoint);
-                                        areaLiving1.Number = "1";
-                                        areaLiving1.Name = "Living";                                    
-
-                                        Area areaGarage = curDoc.Create.NewArea(areaFloor, insPoint);
-                                        areaGarage.Number = "2";
-                                        areaGarage.Name = "Garage";
-
-                                        Area areaCoveredPatio = curDoc.Create.NewArea(areaFloor, insPoint);
-                                        areaCoveredPatio.Number = "3";
-                                        areaCoveredPatio.Name = "Covered Patio";
-
-                                        Area areaCoveredPorch = curDoc.Create.NewArea(areaFloor, insPoint);
-                                        areaCoveredPorch.Number = "4";
-                                        areaCoveredPorch.Name = "Covered Porch";
-
-                                        Area areaPorteCochere = curDoc.Create.NewArea(areaFloor, insPoint);
-                                        areaPorteCochere.Number = "5";
-                                        areaPorteCochere.Name = "Porte Cochere";
-
-                                        Area areaPatio = curDoc.Create.NewArea(areaFloor, insPoint);
-                                        areaPatio.Number = "6";
-                                        areaPatio.Name = "Patio";
-
-                                        Area areaPorch = curDoc.Create.NewArea(areaFloor, insPoint);
-                                        areaPorch.Number = "7";
-                                        areaPorch.Name = "Porch";
-
-                                        Area areaOption1 = curDoc.Create.NewArea(areaFloor, insPoint);
-                                        areaOption1.Number = "8";
-                                        areaOption1.Name = "Option";
-                                        areaOption1.LookupParameter("Area Category").Set("Options");
-
-                                        // !!! still need to set values for Area Category & Comments
+                                        foreach (var areaInfo in areasMain)
+                                        {
+                                            Utils.CreateAreaWithTag(curDoc, areaFloor, ref insPoint, ref tagInsert, areaInfo);
+                                        }
                                     }
                                     else if (level.ToString() == "Upper Level" || level.ToString() == "Second Floor")
                                     {
                                         // add these areas
+                                        Area areaLiving2 = curDoc.Create.NewArea(areaFloor, insPoint);
+                                        areaLiving2.Number = "1";
+                                        areaLiving2.Name = "Living";
+                                        areaLiving2.LookupParameter("Area Category").Set("Total Covered");
+                                        areaLiving2.LookupParameter("Comments").Set("A");
+
+                                        AreaTag livingTag = curDoc.Create.NewAreaTag(areaFloor, areaLiving2, insPoint);
+                                        livingTag.TagHeadPosition = tagInsert;
+                                        livingTag.HasLeader = false;
+
+                                        insPoint = insPoint.Subtract(offset);
+
+                                        Area areaCoveredBalcony = curDoc.Create.NewArea(areaFloor, insPoint);
+                                        areaCoveredBalcony.Number = "9";
+                                        areaCoveredBalcony.Name = "Covered Balcony";
+                                        areaCoveredBalcony.LookupParameter("Area Category").Set("Total Covered");
+                                        areaCoveredBalcony.LookupParameter("Comments").Set("I");
+
+                                        AreaTag tagCoveredBalcony = curDoc.Create.NewAreaTag(areaFloor, areaCoveredBalcony, insPoint);
+                                        tagCoveredBalcony.TagHeadPosition = tagInsert.Subtract(tagOffset);
+                                        tagCoveredBalcony.HasLeader = false;
+
+                                        insPoint = insPoint.Subtract(offset);
+
+                                        Area areaBalcony = curDoc.Create.NewArea(areaFloor, insPoint);
+                                        areaBalcony.Number = "10";
+                                        areaBalcony.Name = "Balcony";
+                                        areaBalcony.LookupParameter("Area Category").Set("Total Uncovered");
+                                        areaBalcony.LookupParameter("Comments").Set("J");
+
+                                        AreaTag tagBalcony = curDoc.Create.NewAreaTag(areaFloor, areaBalcony, insPoint);
+                                        tagBalcony.TagHeadPosition = tagInsert.Subtract(tagOffset);
+                                        tagBalcony.HasLeader = false;
+
+                                        insPoint = insPoint.Subtract(offset);
+
+                                        Area areaOption2 = curDoc.Create.NewArea(areaFloor, insPoint);
+                                        areaOption2.Number = "8";
+                                        areaOption2.Name = "Option";
+                                        areaOption2.LookupParameter("Area Category").Set("Options");
+                                        areaOption2.LookupParameter("Comments").Set("H");
+
+                                        AreaTag tagOption2 = curDoc.Create.NewAreaTag(areaFloor, areaOption2, insPoint);
+                                        tagOption2.TagHeadPosition = tagInsert.Subtract(tagOffset);
+                                        tagOption2.HasLeader = false;
+
+                                        insPoint = insPoint.Subtract(offset);
+
                                     }
                                 }
                             }
