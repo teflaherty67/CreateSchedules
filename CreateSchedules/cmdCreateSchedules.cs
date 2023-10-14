@@ -112,8 +112,15 @@ namespace CreateSchedules
                     if (schemeFloor == null)
                     {
                         // if null, warn the user & exit the command
+                        TaskDialog tdSchemeError = new TaskDialog("Error");
+                        tdSchemeError.MainIcon = TaskDialogIcon.TaskDialogIconWarning;
+                        tdSchemeError.Title = "Create Schedules";
+                        tdSchemeError.TitleAutoPrefix = false;
+                        tdSchemeError.MainContent = "The Area Scheme does not exist or is named incorrectly. Resolve the issue & try again.";
+                        tdSchemeError.CommonButtons = TaskDialogCommonButtons.Close;
 
-                        Forms.MessageBox.Show("The Area Scheme does not exist or is named incorrectly. Resolve the issue & try again");
+                        TaskDialogResult tdNewErrorRes = tdSchemeError.Show();
+
                         return Result.Failed;
                     }
 
@@ -168,9 +175,25 @@ namespace CreateSchedules
 
                                     Parameter level = curView.LookupParameter("Associated Level");
 
+                                    // create insertion points
+                                    XYZ insStart = new XYZ(50, 0, 0);
+                                    UV insPoint = new UV(insStart.X, insStart.Y);
+                                    XYZ tagInsert = new XYZ(50, 0, 0);
+
                                     if (level.ToString() == "Lower Level")
                                     {
                                         // add these areas
+                                        List<clsFloorAreaData> areasLower = new List<clsFloorAreaData>()
+                                        {
+                                            new clsFloorAreaData("13", "Living", "Total Covered", "A"),
+                                            new clsFloorAreaData("14", "Mechanical", "Total Covered", "K"),
+                                            new clsFloorAreaData("15", "Unfinished Basement", "Total Covered", "L"),
+                                            new clsFloorAreaData("16", "Option", "Options", "H")
+                                        };
+                                        foreach (var areaInfo in areasLower)
+                                        {
+                                            Utils.CreateAreaWithTag(curDoc, areaFloor, ref insPoint, ref tagInsert, areaInfo);
+                                        }
                                     }
                                     else if (level.ToString() == "Main Level" || level.ToString() == "First Floor")
                                     {
@@ -178,13 +201,6 @@ namespace CreateSchedules
 
                                         // need to set a range and put this in a loop that increments the insPoint
 
-                                        XYZ insStart = new XYZ(0, 0, 0);
-
-                                        double calcOffset = 1.0 * curDoc.ActiveView.Scale;
-
-                                        XYZ offset = new XYZ(0, calcOffset, 0);
-
-                                        UV insPoint = new UV(insStart.X, insStart.Y);
 
                                         Area areaLiving1 = curDoc.Create.NewArea(areaFloor, insPoint);
                                         areaLiving1.Number = "1";

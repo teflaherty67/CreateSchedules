@@ -489,12 +489,31 @@ namespace CreateSchedules
 
             veneerSched.Name = schedTitle[0] + "- Elevation " + Globals.ElevDesignation;
 
-            // set the design option to the specified elevation designation
-            DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation : " + Globals.ElevDesignation);
+            //// set the design option to the specified elevation designation
+            //DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation : " + Globals.ElevDesignation);
 
-            Parameter doParam = veneerSched.get_Parameter(BuiltInParameter.VIEWER_OPTION_VISIBILITY);
+            //Parameter doParam = veneerSched.get_Parameter(BuiltInParameter.VIEWER_OPTION_VISIBILITY);
 
-            doParam.Set(curOption.Id); //??? the code is getting the right option, but it's not changing anything in the model
+            //doParam.Set(curOption.Id); //??? the code is getting the right option, but it's not changing anything in the model
+        }
+
+        internal static void CreateAreaWithTag(Document curDoc, ViewPlan areaFloor, ref UV insPoint, ref XYZ tagInsert, clsFloorAreaData areaInfo)
+        {
+            Area curArea = curDoc.Create.NewArea(areaFloor, insPoint);
+            curArea.Number = areaInfo.Number;
+            curArea.Name = areaInfo.Name;
+            curArea.LookupParameter("Area Category").Set(areaInfo.Category);
+            curArea.LookupParameter("Comments").Set(areaInfo.Comments);
+
+            AreaTag tag = curDoc.Create.NewAreaTag(areaFloor, curArea, insPoint);
+            tag.TagHeadPosition = tagInsert;
+            tag.HasLeader = false;
+
+            UV offset = new UV(0, 8);
+            insPoint = insPoint.Subtract(offset);
+
+            XYZ tagOffset = new XYZ(0, 8, 0);
+            tagInsert = tagInsert.Subtract(tagOffset);
         }
 
         #endregion
