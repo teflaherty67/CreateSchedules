@@ -173,7 +173,7 @@ namespace CreateSchedules
                                 {
                                     //set the color scheme
 
-                                    Parameter level = curView.LookupParameter("Associated Level");
+                                    //Parameter level = curView.LookupParameter("Associated Level");
 
                                     // create insertion points
                                     XYZ insStart = new XYZ(50, 0, 0);
@@ -184,7 +184,7 @@ namespace CreateSchedules
                                     XYZ tagInsert = new XYZ(50, 0, 0);
                                     XYZ tagOffset = new XYZ(0, 8, 0);
 
-                                    if (level.Element.Name == "Lower Level")
+                                    if (curView.Name == "Lower Level")
                                     {
                                         // add these areas
                                         List<clsFloorAreaData> areasLower = new List<clsFloorAreaData>()
@@ -199,7 +199,7 @@ namespace CreateSchedules
                                             Utils.CreateAreaWithTag(curDoc, areaFloor, ref insPoint, ref tagInsert, areaInfo);
                                         }
                                     }
-                                    else if (level.Element.Name == "Main Level" || level.Element.Name == "First Floor")
+                                    else if (curView.Name == "Main Level" || curView.Name == "First Floor")
                                     {
                                         // add these areas
                                         List<clsFloorAreaData> areasMain = new List<clsFloorAreaData>
