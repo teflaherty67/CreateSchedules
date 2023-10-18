@@ -151,7 +151,7 @@ namespace CreateSchedules
 
                            List<View> areaViews = new List<View>();
 
-                            int countFloor = levelList.Count;
+                            //int countFloor = levelList.Count;
 
                             foreach (Level curlevel in levelList)
                             {
@@ -165,11 +165,11 @@ namespace CreateSchedules
                                 
                                 areaViews.Add(areaFloor);
 
-                                countFloor--;
+                                //countFloor--;
 
                                 // loop through each newly created area plan
 
-                                foreach (View curView in areaViews)
+                                foreach (ViewPlan curView in areaViews)
                                 {
                                     //set the color scheme
 
@@ -196,7 +196,7 @@ namespace CreateSchedules
                                         };
                                         foreach (var areaInfo in areasLower)
                                         {
-                                            Utils.CreateAreaWithTag(curDoc, areaFloor, ref insPoint, ref tagInsert, areaInfo);
+                                            Utils.CreateAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
                                         }
                                     }
                                     else if (curView.Name == "Main Level" || curView.Name == "First Floor")
@@ -216,7 +216,7 @@ namespace CreateSchedules
 
                                         foreach (var areaInfo in areasMain)
                                         {
-                                            Utils.CreateAreaWithTag(curDoc, areaFloor, ref insPoint, ref tagInsert, areaInfo);
+                                            Utils.CreateAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
                                         }
                                     }
                                     else
@@ -232,7 +232,7 @@ namespace CreateSchedules
 
                                         foreach (var areaInfo in areasUpper)
                                         {
-                                            Utils.CreateAreaWithTag(curDoc, areaFloor, ref insPoint, ref tagInsert, areaInfo);
+                                            Utils.CreateAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
                                         }
                                     }
                                 }
