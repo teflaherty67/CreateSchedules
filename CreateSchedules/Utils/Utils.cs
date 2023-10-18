@@ -497,15 +497,15 @@ namespace CreateSchedules
             //doParam.Set(curOption.Id); //??? the code is getting the right option, but it's not changing anything in the model
         }
 
-        internal static void CreateAreaWithTag(Document curDoc, ViewPlan areaFloor, ref UV insPoint, ref XYZ tagInsert, clsFloorAreaData areaInfo)
+        internal static void CreateFloorAreaWithTag(Document curDoc, ViewPlan areaPlan, ref UV insPoint, ref XYZ tagInsert, clsFloorAreaData areaInfo)
         {
-            Area curArea = curDoc.Create.NewArea(areaFloor, insPoint);
+            Area curArea = curDoc.Create.NewArea(areaPlan, insPoint);
             curArea.Number = areaInfo.Number;
             curArea.Name = areaInfo.Name;
             curArea.LookupParameter("Area Category").Set(areaInfo.Category);
             curArea.LookupParameter("Comments").Set(areaInfo.Comments);
 
-            AreaTag tag = curDoc.Create.NewAreaTag(areaFloor, curArea, insPoint);
+            AreaTag tag = curDoc.Create.NewAreaTag(areaPlan, curArea, insPoint);
             tag.TagHeadPosition = tagInsert;
             tag.HasLeader = false;
 

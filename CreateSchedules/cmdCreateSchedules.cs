@@ -196,7 +196,7 @@ namespace CreateSchedules
                                         };
                                         foreach (var areaInfo in areasLower)
                                         {
-                                            Utils.CreateAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
+                                            Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
                                         }
                                     }
                                     else if (curView.Name == "Main Level" || curView.Name == "First Floor")
@@ -216,7 +216,7 @@ namespace CreateSchedules
 
                                         foreach (var areaInfo in areasMain)
                                         {
-                                            Utils.CreateAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
+                                            Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
                                         }
                                     }
                                     else
@@ -232,7 +232,7 @@ namespace CreateSchedules
 
                                         foreach (var areaInfo in areasUpper)
                                         {
-                                            Utils.CreateAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
+                                            Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
                                         }
                                     }
                                 }
