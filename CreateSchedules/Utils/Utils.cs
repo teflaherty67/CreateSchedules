@@ -497,7 +497,7 @@ namespace CreateSchedules
             //doParam.Set(curOption.Id); //??? the code is getting the right option, but it's not changing anything in the model
         }
 
-        internal static void CreateFloorAreaWithTag(Document curDoc, ViewPlan areaPlan, ref UV insPoint, ref XYZ tagInsert, clsFloorAreaData areaInfo)
+        internal static void CreateFloorAreaWithTag(Document curDoc, ViewPlan areaPlan, ref UV insPoint, ref XYZ tagInsert, clsAreaData areaInfo)
         {
             Area curArea = curDoc.Create.NewArea(areaPlan, insPoint);
             curArea.Number = areaInfo.Number;

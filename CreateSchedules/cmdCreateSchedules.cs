@@ -151,8 +151,6 @@ namespace CreateSchedules
 
                            List<View> areaViews = new List<View>();
 
-                            //int countFloor = levelList.Count;
-
                             foreach (Level curlevel in levelList)
                             {
                                 ElementId curLevelId = curlevel.Id;
@@ -160,80 +158,74 @@ namespace CreateSchedules
                                 View vtFloorAreas = Utils.GetViewTemplateByName(curDoc, "10-Floor Area");
 
                                 ViewPlan areaFloor = ViewPlan.CreateAreaPlan(curDoc, schemeFloor.Id, curLevelId);
-                                //areaFloor.Name = "Floor_" + countFloor.ToString();
                                 areaFloor.ViewTemplateId = vtFloorAreas.Id;
-                                
+
                                 areaViews.Add(areaFloor);
 
-                                //countFloor--;
+                            }
 
-                                // loop through each newly created area plan
+                            foreach (ViewPlan curView in areaViews)
+                            {
+                                //set the color scheme                                   
 
-                                foreach (ViewPlan curView in areaViews)
+                                // create insertion points
+                                XYZ insStart = new XYZ(50, 0, 0);
+
+                                UV insPoint = new UV(insStart.X, insStart.Y);
+                                UV offset = new UV(0, 8);
+
+                                XYZ tagInsert = new XYZ(50, 0, 0);
+                                XYZ tagOffset = new XYZ(0, 8, 0);
+
+                                if (curView.Name == "Lower Level")
                                 {
-                                    //set the color scheme
-
-                                    //Parameter level = curView.LookupParameter("Associated Level");
-
-                                    // create insertion points
-                                    XYZ insStart = new XYZ(50, 0, 0);
-
-                                    UV insPoint = new UV(insStart.X, insStart.Y);
-                                    UV offset = new UV(0, 8);
-
-                                    XYZ tagInsert = new XYZ(50, 0, 0);
-                                    XYZ tagOffset = new XYZ(0, 8, 0);
-
-                                    if (curView.Name == "Lower Level")
-                                    {
-                                        // add these areas
-                                        List<clsFloorAreaData> areasLower = new List<clsFloorAreaData>()
+                                    // add these areas
+                                    List<clsAreaData> areasLower = new List<clsAreaData>()
                                         {
-                                            new clsFloorAreaData("13", "Living", "Total Covered", "A"),
-                                            new clsFloorAreaData("14", "Mechanical", "Total Covered", "K"),
-                                            new clsFloorAreaData("15", "Unfinished Basement", "Total Covered", "L"),
-                                            new clsFloorAreaData("16", "Option", "Options", "H")
+                                            new clsAreaData("13", "Living", "Total Covered", "A"),
+                                            new clsAreaData("14", "Mechanical", "Total Covered", "K"),
+                                            new clsAreaData("15", "Unfinished Basement", "Total Covered", "L"),
+                                            new clsAreaData("16", "Option", "Options", "H")
                                         };
-                                        foreach (var areaInfo in areasLower)
-                                        {
-                                            Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
-                                        }
+                                    foreach (var areaInfo in areasLower)
+                                    {
+                                        Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
                                     }
-                                    else if (curView.Name == "Main Level" || curView.Name == "First Floor")
-                                    {
-                                        // add these areas
-                                        List<clsFloorAreaData> areasMain = new List<clsFloorAreaData>
+                                }
+                                else if (curView.Name == "Main Level" || curView.Name == "First Floor")
+                                {
+                                    // add these areas
+                                    List<clsAreaData> areasMain = new List<clsAreaData>
                                         {
-                                            new clsFloorAreaData("1", "Living", "Total Covered", "A"),
-                                            new clsFloorAreaData("2", "Garage", "Total Covered", "B"),
-                                            new clsFloorAreaData("3", "Covered Patio", "Total Covered", "C"),
-                                            new clsFloorAreaData("4", "Covered Porch", "Total Covered", "D"),
-                                            new clsFloorAreaData("5", "Porte Cochere", "Total Covered", "E"),
-                                            new clsFloorAreaData("6", "Patio", "Total Uncovered", "F"),
-                                            new clsFloorAreaData("7", "Porch", "Total Uncovered", "G"),
-                                            new clsFloorAreaData("8", "Option", "Options", "H")
+                                            new clsAreaData("1", "Living", "Total Covered", "A"),
+                                            new clsAreaData("2", "Garage", "Total Covered", "B"),
+                                            new clsAreaData("3", "Covered Patio", "Total Covered", "C"),
+                                            new clsAreaData("4", "Covered Porch", "Total Covered", "D"),
+                                            new clsAreaData("5", "Porte Cochere", "Total Covered", "E"),
+                                            new clsAreaData("6", "Patio", "Total Uncovered", "F"),
+                                            new clsAreaData("7", "Porch", "Total Uncovered", "G"),
+                                            new clsAreaData("8", "Option", "Options", "H")
                                         };
 
-                                        foreach (var areaInfo in areasMain)
-                                        {
-                                            Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
-                                        }
+                                    foreach (var areaInfo in areasMain)
+                                    {
+                                        Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
                                     }
-                                    else
-                                    {
-                                        // add these areas
-                                        List<clsFloorAreaData> areasUpper = new List<clsFloorAreaData>
+                                }
+                                else
+                                {
+                                    // add these areas
+                                    List<clsAreaData> areasUpper = new List<clsAreaData>
                                         {
-                                            new clsFloorAreaData("9", "Living", "Total Covered", "A"),
-                                            new clsFloorAreaData("10", "Covered Balcony", "Total Covered", "I"),
-                                            new clsFloorAreaData("11", "Balcony", "Total Uncovered", "J"),
-                                            new clsFloorAreaData("12", "Option", "Options", "H")
+                                            new clsAreaData("9", "Living", "Total Covered", "A"),
+                                            new clsAreaData("10", "Covered Balcony", "Total Covered", "I"),
+                                            new clsAreaData("11", "Balcony", "Total Uncovered", "J"),
+                                            new clsAreaData("12", "Option", "Options", "H")
                                         };
 
-                                        foreach (var areaInfo in areasUpper)
-                                        {
-                                            Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
-                                        }
+                                    foreach (var areaInfo in areasUpper)
+                                    {
+                                        Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
                                     }
                                 }
                             }
