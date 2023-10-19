@@ -69,6 +69,17 @@ namespace CreateSchedules
             bool chbFrameResult = curForm.GetCheckboxFrame();
             bool chbAtticResult = curForm.GetCheckboxAttic();
 
+            string levelWord = "";
+
+            if (typeFoundation == "Basement" || typeFoundation == "Crawlspace")
+            {
+                levelWord = "Level";
+            }
+            else
+            {
+                levelWord = "Floor";
+            }
+
             // start the transaction
 
             using (Transaction t = new Transaction(curDoc))
@@ -136,22 +147,10 @@ namespace CreateSchedules
 
                     if (schemeFloor != null)
                     {
-                                               
-
                         // if not, create the area plans
 
                         if (areaFloorView == null)
-                        {
-                            string levelWord = "";
-
-                           if (typeFoundation == "Basement" || typeFoundation == "Crawlspace")
-                            {
-                                levelWord = "Level";
-                            }
-                           else
-                            {
-                                levelWord = "Floor";
-                            }
+                        {                          
 
                            List<Level> levelList = Utils.GetLevelByNameContains(curDoc, levelWord);
 
@@ -381,52 +380,49 @@ namespace CreateSchedules
 
                 #endregion
 
-                #region Frame Area Schedules
+                #region Frame Areas
 
                 // check to see if the frame area scheme exists
 
                 if (chbFrameResult == true)
                 {
                     // set the variable for the frame Area Scheme name
+                    AreaScheme frameAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Frame");
 
-                    AreaScheme schemeFrame = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Frame");
+                    // set the variable for the color fill scheme
+                    ColorFillScheme frameColorScheme = Utils.GetColorFillSchemeByName(curDoc, "Frame", frameAreaScheme);
 
-                    if (schemeFrame == null)
+                    if (frameAreaScheme == null || frameColorScheme == null)
                     {
                         // if null, warn the user & exit the command
+                        TaskDialog tdFrameError = new TaskDialog("Error");
+                        tdFrameError.MainIcon = TaskDialogIcon.TaskDialogIconWarning;
+                        tdFrameError.Title = "Create Schedules";
+                        tdFrameError.TitleAutoPrefix = false;
+                        tdFrameError.MainContent = "Either the Area Scheme, or the Color Scheme, does not exist " +
+                            "or is named incorrectly. Resolve the issue & try again.";
+                        tdFrameError.CommonButtons = TaskDialogCommonButtons.Close;
 
-                        Forms.MessageBox.Show("The Area Scheme does not exist or is named incorrectly. Resolve the issue & try again.");
-                        return Result.Failed;
+                        TaskDialogResult tdFrameErrorRes = tdFrameError.Show();
                     }
 
-                    if (schemeFrame != null)
-                    {
-                        // set some variables
+                    #region Frame Area Plans
 
+                    if (frameAreaScheme != null)
+                    {
+                        // check to see if the frame area plans exist
                         ViewPlan areaFrameView = Utils.GetAreaPlanByViewFamilyName(curDoc, Globals.ElevDesignation + " Frame");
 
                         // if not, create the area plans
 
                         if (areaFrameView == null)
-                        {
-                            string levelWord = "";
-
-                            if (typeFoundation == "Slab")
-                            {
-                                levelWord = "Floor";
-                            }
-                            else if (typeFoundation == "Basement" || typeFoundation == "Crawlspace")
-                            {
-                                levelWord = "Level";
-                            }
+                        {                        
 
                             List<Level> levelList = Utils.GetLevelByNameContains(curDoc, levelWord);
 
-                            ElementId schemeFrameId = schemeFrame.Id;
+                            ElementId schemeFrameId = frameAreaScheme.Id;
 
-                            List<View> frameViews = new List<View>();
-
-                            int countFloor = 1;
+                            List<View> frameViews = new List<View>();                            
 
                             foreach (Level curlevel in levelList)
                             {
@@ -435,12 +431,10 @@ namespace CreateSchedules
                                 View vtFrameAreas = Utils.GetViewTemplateByName(curDoc, "11-Frame Area");
 
                                 ViewPlan areaFrame = ViewPlan.CreateAreaPlan(curDoc, schemeFrameId, curLevelId);
-                                areaFrame.Name = "Frame_" + countFloor.ToString();
+                                
                                 areaFrame.ViewTemplateId = vtFrameAreas.Id;
 
-                                frameViews.Add(areaFrame);
-
-                                countFloor++;
+                                frameViews.Add(areaFrame);                                
 
                                 // loop through each newly created area plan
 
@@ -525,6 +519,8 @@ namespace CreateSchedules
                                 }
                             }
                         }
+
+                        #endregion
 
                         // if the frame area plans exist, create the schedule
 
@@ -679,24 +675,7 @@ namespace CreateSchedules
 
                         if (areaAtticView == null)
                         {
-                            string levelWord = "";
-
-                            if (floorNum == 1 && typeFoundation == "Slab")
-                            {
-                                levelWord = "First Floor";
-                            }
-                            else if (floorNum == 1 && typeFoundation == "Basement" || typeFoundation == "Crawlspace")
-                            {
-                                levelWord = "Main Level";
-                            }
-                            else if (floorNum == 2 && typeFoundation == "Slab")
-                            {
-                                levelWord = "Second Floor";
-                            }
-                            else if (floorNum == 2 && typeFoundation == "Basement" || typeFoundation == "Crawlspace")
-                            {
-                                levelWord = "Upper Level";
-                            }
+                            
 
                             Level levelAttic = Utils.GetLevelByName(curDoc, levelWord);
 
