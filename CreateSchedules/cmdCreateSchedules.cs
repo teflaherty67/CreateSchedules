@@ -129,12 +129,14 @@ namespace CreateSchedules
 
                     #region Floor Area Plans
 
+                    // check if area plans exist
+                    ViewPlan areaFloorView = Utils.GetAreaPlanByViewFamilyName(curDoc, Globals.ElevDesignation + " Floor");
+
                     // if the floor area scheme exists, check to see if the floor area plans exist
 
                     if (schemeFloor != null)
                     {
-                        // check if area plans exist
-                        ViewPlan areaFloorView = Utils.GetAreaPlanByViewFamilyName(curDoc, Globals.ElevDesignation + " Floor");                        
+                                               
 
                         // if not, create the area plans
 
@@ -170,6 +172,8 @@ namespace CreateSchedules
                                 ViewPlan areaFloor = ViewPlan.CreateAreaPlan(curDoc, schemeFloor.Id, curLevelId);
                                 areaFloor.ViewTemplateId = vtFloorAreas.Id;
                                 areaFloor.SetColorFillSchemeId(areaCat.Id, schemeColorFill.Id);
+
+                                areaFloorView = areaFloor;
 
                                 areaViews.Add(areaFloor);
                             }
@@ -260,7 +264,7 @@ namespace CreateSchedules
                                 // get element Id of the fields to be used in the schedule
                                 ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "Area Category");
                                 ElementId comFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
-                                ElementId levelFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.LEVEL_NAME);
+                                ElementId levelFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.LEVEL_NAME);
                                 ElementId nameFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_NAME);
                                 ElementId areaFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_AREA);
                                 ElementId numFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_NUMBER);
