@@ -118,7 +118,7 @@ namespace CreateSchedules
                         tdSchemeError.MainIcon = TaskDialogIcon.TaskDialogIconWarning;
                         tdSchemeError.Title = "Create Schedules";
                         tdSchemeError.TitleAutoPrefix = false;
-                        tdSchemeError.MainContent = "Either the Area Scheme, or the Color Scheme does not exist " +
+                        tdSchemeError.MainContent = "Either the Area Scheme, or the Color Scheme, does not exist " +
                             "or is named incorrectly. Resolve the issue & try again.";
                         tdSchemeError.CommonButtons = TaskDialogCommonButtons.Close;
 
@@ -370,6 +370,8 @@ namespace CreateSchedules
                                 newFloorSched.Definition.IsItemized = false;
                             }
                         }
+
+                        #endregion
                     }
                 }
 
