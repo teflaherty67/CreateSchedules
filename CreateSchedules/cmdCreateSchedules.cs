@@ -99,38 +99,42 @@ namespace CreateSchedules
 
                 #endregion
 
-                #region Floor Area Schedules
+                #region Floor Areas                
 
                 // check to see if the floor area scheme exists
 
                 if (chbFloorResult == true)
                 {
                     // set the variable for the floor Area Scheme name
-
                     AreaScheme schemeFloor = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Floor");
 
-                    if (schemeFloor == null)
+                    // set the variable for the color fill scheme
+                    ColorFillScheme schemeColorFill = Utils.GetColorFillSchemeByName(curDoc, "Floor", schemeFloor);
+
+                    if (schemeFloor == null || schemeColorFill == null)
                     {
                         // if null, warn the user & exit the command
                         TaskDialog tdSchemeError = new TaskDialog("Error");
                         tdSchemeError.MainIcon = TaskDialogIcon.TaskDialogIconWarning;
                         tdSchemeError.Title = "Create Schedules";
                         tdSchemeError.TitleAutoPrefix = false;
-                        tdSchemeError.MainContent = "The Area Scheme does not exist or is named incorrectly. Resolve the issue & try again.";
+                        tdSchemeError.MainContent = "Either the Area Scheme, or the Color Scheme does not exist " +
+                            "or is named incorrectly. Resolve the issue & try again.";
                         tdSchemeError.CommonButtons = TaskDialogCommonButtons.Close;
 
-                        TaskDialogResult tdNewErrorRes = tdSchemeError.Show();
+                        TaskDialogResult tdSchemeErrorRes = tdSchemeError.Show();
 
                         return Result.Failed;
                     }
+
+                    #region Floor Area Plans
 
                     // if the floor area scheme exists, check to see if the floor area plans exist
 
                     if (schemeFloor != null)
                     {
-                        // set some variables
-
-                        ViewPlan areaFloorView = Utils.GetAreaPlanByViewFamilyName(curDoc, Globals.ElevDesignation + " Floor");
+                        // check if area plans exist
+                        ViewPlan areaFloorView = Utils.GetAreaPlanByViewFamilyName(curDoc, Globals.ElevDesignation + " Floor");                        
 
                         // if not, create the area plans
 
@@ -153,15 +157,21 @@ namespace CreateSchedules
 
                             foreach (Level curlevel in levelList)
                             {
+                                // get the category & set category Id
+                                Category areaCat = curDoc.Settings.Categories.get_Item(BuiltInCategory.OST_Areas);
+
+                                // get the element Id of the current level
                                 ElementId curLevelId = curlevel.Id;
 
+                                // create & set variable for the view template
                                 View vtFloorAreas = Utils.GetViewTemplateByName(curDoc, "10-Floor Area");
 
+                                // create the area plan
                                 ViewPlan areaFloor = ViewPlan.CreateAreaPlan(curDoc, schemeFloor.Id, curLevelId);
                                 areaFloor.ViewTemplateId = vtFloorAreas.Id;
+                                areaFloor.SetColorFillSchemeId(areaCat.Id, schemeColorFill.Id);
 
                                 areaViews.Add(areaFloor);
-
                             }
 
                             foreach (ViewPlan curView in areaViews)
@@ -231,10 +241,11 @@ namespace CreateSchedules
                             }
                         }
 
-                        // if the floor area plans exist, create the schedule
+                        #endregion
 
-                        // get the Area category Id
-                        //ElementId areaCatId = new ElementId(BuiltInCategory.OST_Areas); // ??? is this needed
+                        #region Floor Area Schedule
+
+                        // if the floor area plans exist, create the schedule                        
 
                         // get the area scheme for the schedule
                         AreaScheme curAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Floor");

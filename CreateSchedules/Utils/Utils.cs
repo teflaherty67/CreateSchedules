@@ -518,6 +518,16 @@ namespace CreateSchedules
 
         #endregion
 
+        internal static ColorFillScheme GetColorFillSchemeByName(Document curDoc, string schemeName, AreaScheme areaScheme)
+        {
+            ColorFillScheme colorfill = new FilteredElementCollector(curDoc)
+                .OfCategory(BuiltInCategory.OST_ColorFillSchema)
+                .Cast<ColorFillScheme>()
+                .Where(x => x.Name.Equals(schemeName) && x.AreaSchemeId.Equals(areaScheme.Id))
+                .First();
+
+            return colorfill;
+        }
     }
 }
 
