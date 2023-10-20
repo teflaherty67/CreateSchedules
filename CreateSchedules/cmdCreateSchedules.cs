@@ -117,23 +117,23 @@ namespace CreateSchedules
                 if (chbFloorResult == true)
                 {
                     // set the variable for the floor Area Scheme name
-                    AreaScheme schemeFloor = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Floor");
+                    AreaScheme floorAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Floor");
 
                     // set the variable for the color fill scheme
-                    ColorFillScheme schemeColorFill = Utils.GetColorFillSchemeByName(curDoc, "Floor", schemeFloor);
+                    ColorFillScheme floorColorScheme = Utils.GetColorFillSchemeByName(curDoc, "Floor", floorAreaScheme);
 
-                    if (schemeFloor == null || schemeColorFill == null)
+                    if (floorAreaScheme == null || floorColorScheme == null)
                     {
                         // if null, warn the user & exit the command
-                        TaskDialog tdSchemeError = new TaskDialog("Error");
-                        tdSchemeError.MainIcon = TaskDialogIcon.TaskDialogIconWarning;
-                        tdSchemeError.Title = "Create Schedules";
-                        tdSchemeError.TitleAutoPrefix = false;
-                        tdSchemeError.MainContent = "Either the Area Scheme, or the Color Scheme, does not exist " +
+                        TaskDialog tdFloorError = new TaskDialog("Error");
+                        tdFloorError.MainIcon = TaskDialogIcon.TaskDialogIconWarning;
+                        tdFloorError.Title = "Create Schedules";
+                        tdFloorError.TitleAutoPrefix = false;
+                        tdFloorError.MainContent = "Either the Area Scheme, or the Color Scheme, does not exist " +
                             "or is named incorrectly. Resolve the issue & try again.";
-                        tdSchemeError.CommonButtons = TaskDialogCommonButtons.Close;
+                        tdFloorError.CommonButtons = TaskDialogCommonButtons.Close;
 
-                        TaskDialogResult tdSchemeErrorRes = tdSchemeError.Show();
+                        TaskDialogResult tdFloorErrorRes = tdFloorError.Show();
 
                         return Result.Failed;
                     }
@@ -145,7 +145,7 @@ namespace CreateSchedules
 
                     // if the floor area scheme exists, check to see if the floor area plans exist
 
-                    if (schemeFloor != null)
+                    if (floorAreaScheme != null)
                     {
                         // if not, create the area plans
 
@@ -168,9 +168,9 @@ namespace CreateSchedules
                                 View vtFloorAreas = Utils.GetViewTemplateByName(curDoc, "10-Floor Area");
 
                                 // create the area plan
-                                ViewPlan areaFloor = ViewPlan.CreateAreaPlan(curDoc, schemeFloor.Id, curLevelId);
+                                ViewPlan areaFloor = ViewPlan.CreateAreaPlan(curDoc, floorAreaScheme.Id, curLevelId);
                                 areaFloor.ViewTemplateId = vtFloorAreas.Id;
-                                areaFloor.SetColorFillSchemeId(areaCat.Id, schemeColorFill.Id);
+                                areaFloor.SetColorFillSchemeId(areaCat.Id, floorColorScheme.Id);
 
                                 areaFloorView = areaFloor;
 
