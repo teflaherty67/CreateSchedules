@@ -263,7 +263,7 @@ namespace CreateSchedules
                                 // get element Id of the fields to be used in the schedule
                                 ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "Area Category");
                                 ElementId comFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
-                                ElementId levelFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.LEVEL_NAME);
+                                //ElementId levelFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.LEVEL_NAME);
                                 ElementId nameFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_NAME);
                                 ElementId areaFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_AREA);
                                 ElementId numFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_NUMBER);
@@ -275,11 +275,11 @@ namespace CreateSchedules
                                 ScheduleField comField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, comFieldId);
                                 comField.IsHidden = true;
 
-                                ScheduleField levelField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, levelFieldId);
-                                levelField.IsHidden = false;
-                                levelField.ColumnHeading = "Level";
-                                levelField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
-                                levelField.HorizontalAlignment = ScheduleHorizontalAlignment.Left;
+                                //ScheduleField levelField = newFloorSched.Definition.AddField(ScheduleFieldType.ViewBased, levelFieldId);
+                                //levelField.IsHidden = false;
+                                //levelField.ColumnHeading = "Level";
+                                //levelField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                                //levelField.HorizontalAlignment = ScheduleHorizontalAlignment.Left;
 
                                 ScheduleField nameField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, nameFieldId);
                                 nameField.IsHidden = true;
@@ -317,8 +317,8 @@ namespace CreateSchedules
                                 nameSort.ShowFooter = true;
                                 newFloorSched.Definition.AddSortGroupField(nameSort);
 
-                                ScheduleSortGroupField levelSort = new ScheduleSortGroupField(levelField.FieldId, ScheduleSortOrder.Ascending);
-                                newFloorSched.Definition.AddSortGroupField(levelSort);
+                                //ScheduleSortGroupField levelSort = new ScheduleSortGroupField(levelField.FieldId, ScheduleSortOrder.Ascending);
+                                //newFloorSched.Definition.AddSortGroupField(levelSort);
                             }
                             else
                             {
