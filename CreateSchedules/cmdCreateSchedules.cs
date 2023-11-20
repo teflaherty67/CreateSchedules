@@ -69,6 +69,17 @@ namespace CreateSchedules
             bool chbFrameResult = curForm.GetCheckboxFrame();
             bool chbAtticResult = curForm.GetCheckboxAttic();
 
+            string levelWord = "";
+
+            if (typeFoundation == "Basement" || typeFoundation == "Crawlspace")
+            {
+                levelWord = "Level";
+            }
+            else
+            {
+                levelWord = "Floor";
+            }
+
             // start the transaction
 
             using (Transaction t = new Transaction(curDoc))
@@ -106,23 +117,23 @@ namespace CreateSchedules
                 if (chbFloorResult == true)
                 {
                     // set the variable for the floor Area Scheme name
-                    AreaScheme schemeFloor = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Floor");
+                    AreaScheme floorAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Floor");
 
                     // set the variable for the color fill scheme
-                    ColorFillScheme schemeColorFill = Utils.GetColorFillSchemeByName(curDoc, "Floor", schemeFloor);
+                    ColorFillScheme floorColorScheme = Utils.GetColorFillSchemeByName(curDoc, "Floor", floorAreaScheme);
 
-                    if (schemeFloor == null || schemeColorFill == null)
+                    if (floorAreaScheme == null || floorColorScheme == null)
                     {
                         // if null, warn the user & exit the command
-                        TaskDialog tdSchemeError = new TaskDialog("Error");
-                        tdSchemeError.MainIcon = TaskDialogIcon.TaskDialogIconWarning;
-                        tdSchemeError.Title = "Create Schedules";
-                        tdSchemeError.TitleAutoPrefix = false;
-                        tdSchemeError.MainContent = "Either the Area Scheme, or the Color Scheme, does not exist " +
+                        TaskDialog tdFloorError = new TaskDialog("Error");
+                        tdFloorError.MainIcon = TaskDialogIcon.TaskDialogIconWarning;
+                        tdFloorError.Title = "Create Schedules";
+                        tdFloorError.TitleAutoPrefix = false;
+                        tdFloorError.MainContent = "Either the Area Scheme, or the Color Scheme, does not exist " +
                             "or is named incorrectly. Resolve the issue & try again.";
-                        tdSchemeError.CommonButtons = TaskDialogCommonButtons.Close;
+                        tdFloorError.CommonButtons = TaskDialogCommonButtons.Close;
 
-                        TaskDialogResult tdSchemeErrorRes = tdSchemeError.Show();
+                        TaskDialogResult tdFloorErrorRes = tdFloorError.Show();
 
                         return Result.Failed;
                     }
@@ -134,23 +145,15 @@ namespace CreateSchedules
 
                     // if the floor area scheme exists, check to see if the floor area plans exist
 
+                    if (floorAreaScheme != null)
+                    {
                     if (schemeFloor != null)
                     {                                              
 
                         // if not, create the area plans
 
                         if (areaFloorView == null)
-                        {
-                            string levelWord = "";
-
-                           if (typeFoundation == "Basement" || typeFoundation == "Crawlspace")
-                            {
-                                levelWord = "Level";
-                            }
-                           else
-                            {
-                                levelWord = "Floor";
-                            }
+                        {                          
 
                            List<Level> levelList = Utils.GetLevelByNameContains(curDoc, levelWord);
 
@@ -168,9 +171,9 @@ namespace CreateSchedules
                                 View vtFloorAreas = Utils.GetViewTemplateByName(curDoc, "10-Floor Area");
 
                                 // create the area plan
-                                ViewPlan areaFloor = ViewPlan.CreateAreaPlan(curDoc, schemeFloor.Id, curLevelId);
+                                ViewPlan areaFloor = ViewPlan.CreateAreaPlan(curDoc, floorAreaScheme.Id, curLevelId);
                                 areaFloor.ViewTemplateId = vtFloorAreas.Id;
-                                areaFloor.SetColorFillSchemeId(areaCat.Id, schemeColorFill.Id);
+                                areaFloor.SetColorFillSchemeId(areaCat.Id, floorColorScheme.Id);
 
                                 areaFloorView = areaFloor;
 
@@ -262,6 +265,11 @@ namespace CreateSchedules
                             {
                                 // get element Id of the fields to be used in the schedule
                                 ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "Area Category");
+                                ElementId comFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
+                                //ElementId levelFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.LEVEL_NAME);
+                                ElementId nameFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_NAME);
+                                ElementId areaFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_AREA);
+                                ElementId numFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Rooms, BuiltInParameter.ROOM_NUMBER);
                                 ElementId comFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
                                 ElementId levelFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.ROOM_LEVEL_ID);
                                 ElementId nameFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.ROOM_NAME);
@@ -275,11 +283,11 @@ namespace CreateSchedules
                                 ScheduleField comField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, comFieldId);
                                 comField.IsHidden = true;
 
-                                ScheduleField levelField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, levelFieldId);
-                                levelField.IsHidden = false;
-                                levelField.ColumnHeading = "Level";
-                                levelField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
-                                levelField.HorizontalAlignment = ScheduleHorizontalAlignment.Left;
+                                //ScheduleField levelField = newFloorSched.Definition.AddField(ScheduleFieldType.ViewBased, levelFieldId);
+                                //levelField.IsHidden = false;
+                                //levelField.ColumnHeading = "Level";
+                                //levelField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                                //levelField.HorizontalAlignment = ScheduleHorizontalAlignment.Left;
 
                                 ScheduleField nameField = newFloorSched.Definition.AddField(ScheduleFieldType.Instance, nameFieldId);
                                 nameField.IsHidden = true;
@@ -324,6 +332,8 @@ namespace CreateSchedules
                                 nameSort.ShowFooter = true;
                                 newFloorSched.Definition.AddSortGroupField(nameSort);
 
+                                //ScheduleSortGroupField levelSort = new ScheduleSortGroupField(levelField.FieldId, ScheduleSortOrder.Ascending);
+                                //newFloorSched.Definition.AddSortGroupField(levelSort);
                                 ScheduleSortGroupField levelSort = new ScheduleSortGroupField(levelField.FieldId, ScheduleSortOrder.Ascending);
                                 newFloorSched.Definition.AddSortGroupField(levelSort);
 
@@ -396,52 +406,49 @@ namespace CreateSchedules
 
                 #endregion
 
-                #region Frame Area Schedules
+                #region Frame Areas
 
                 // check to see if the frame area scheme exists
 
                 if (chbFrameResult == true)
                 {
                     // set the variable for the frame Area Scheme name
+                    AreaScheme frameAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Frame");
 
-                    AreaScheme schemeFrame = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Frame");
+                    // set the variable for the color fill scheme
+                    ColorFillScheme frameColorScheme = Utils.GetColorFillSchemeByName(curDoc, "Frame", frameAreaScheme);
 
-                    if (schemeFrame == null)
+                    if (frameAreaScheme == null || frameColorScheme == null)
                     {
                         // if null, warn the user & exit the command
+                        TaskDialog tdFrameError = new TaskDialog("Error");
+                        tdFrameError.MainIcon = TaskDialogIcon.TaskDialogIconWarning;
+                        tdFrameError.Title = "Create Schedules";
+                        tdFrameError.TitleAutoPrefix = false;
+                        tdFrameError.MainContent = "Either the Area Scheme, or the Color Scheme, does not exist " +
+                            "or is named incorrectly. Resolve the issue & try again.";
+                        tdFrameError.CommonButtons = TaskDialogCommonButtons.Close;
 
-                        Forms.MessageBox.Show("The Area Scheme does not exist or is named incorrectly. Resolve the issue & try again.");
-                        return Result.Failed;
+                        TaskDialogResult tdFrameErrorRes = tdFrameError.Show();
                     }
 
-                    if (schemeFrame != null)
-                    {
-                        // set some variables
+                    #region Frame Area Plans
 
+                    if (frameAreaScheme != null)
+                    {
+                        // check to see if the frame area plans exist
                         ViewPlan areaFrameView = Utils.GetAreaPlanByViewFamilyName(curDoc, Globals.ElevDesignation + " Frame");
 
                         // if not, create the area plans
 
                         if (areaFrameView == null)
-                        {
-                            string levelWord = "";
-
-                            if (typeFoundation == "Slab")
-                            {
-                                levelWord = "Floor";
-                            }
-                            else if (typeFoundation == "Basement" || typeFoundation == "Crawlspace")
-                            {
-                                levelWord = "Level";
-                            }
+                        {                        
 
                             List<Level> levelList = Utils.GetLevelByNameContains(curDoc, levelWord);
 
-                            ElementId schemeFrameId = schemeFrame.Id;
+                            ElementId schemeFrameId = frameAreaScheme.Id;
 
-                            List<View> frameViews = new List<View>();
-
-                            int countFloor = 1;
+                            List<View> frameViews = new List<View>();                            
 
                             foreach (Level curlevel in levelList)
                             {
@@ -450,12 +457,10 @@ namespace CreateSchedules
                                 View vtFrameAreas = Utils.GetViewTemplateByName(curDoc, "11-Frame Area");
 
                                 ViewPlan areaFrame = ViewPlan.CreateAreaPlan(curDoc, schemeFrameId, curLevelId);
-                                areaFrame.Name = "Frame_" + countFloor.ToString();
+                                
                                 areaFrame.ViewTemplateId = vtFrameAreas.Id;
 
-                                frameViews.Add(areaFrame);
-
-                                countFloor++;
+                                frameViews.Add(areaFrame);                                
 
                                 // loop through each newly created area plan
 
@@ -540,6 +545,8 @@ namespace CreateSchedules
                                 }
                             }
                         }
+
+                        #endregion
 
                         // if the frame area plans exist, create the schedule
 
@@ -694,24 +701,7 @@ namespace CreateSchedules
 
                         if (areaAtticView == null)
                         {
-                            string levelWord = "";
-
-                            if (floorNum == 1 && typeFoundation == "Slab")
-                            {
-                                levelWord = "First Floor";
-                            }
-                            else if (floorNum == 1 && typeFoundation == "Basement" || typeFoundation == "Crawlspace")
-                            {
-                                levelWord = "Main Level";
-                            }
-                            else if (floorNum == 2 && typeFoundation == "Slab")
-                            {
-                                levelWord = "Second Floor";
-                            }
-                            else if (floorNum == 2 && typeFoundation == "Basement" || typeFoundation == "Crawlspace")
-                            {
-                                levelWord = "Upper Level";
-                            }
+                            
 
                             Level levelAttic = Utils.GetLevelByName(curDoc, levelWord);
 
