@@ -17,7 +17,7 @@ using System.Windows.Controls;
 namespace CreateSchedules
 {
     [Transaction(TransactionMode.Manual)]
-    public class cmdCreateSchedules : IExternalCommand
+    public class cmdCreateSchedulesChatGPT : IExternalCommand
     {
         public Result Execute(
           ExternalCommandData commandData,
@@ -129,129 +129,60 @@ namespace CreateSchedules
 
                     #region Floor Area Plans
 
-                    // check if area plans exist
+                    // Check if area plans exist
                     ViewPlan areaFloorView = Utils.GetAreaPlanByViewFamilyName(curDoc, Globals.ElevDesignation + " Floor");
 
-                    // if the floor area scheme exists, check to see if the floor area plans exist
+                    if (schemeFloor != null && areaFloorView == null)
+                    {
+                        string levelWord = typeFoundation == "Basement" || typeFoundation == "Crawlspace" ? "Level" : "Floor";
+                        List<Level> levels = Utils.GetLevelByNameContains(curDoc, levelWord);
+                        List<View> areaViews = CreateAreaPlans(curDoc, levels, schemeFloor);
 
-                    if (schemeFloor != null)
-                    {                                              
-
-                        // if not, create the area plans
-
-                        if (areaFloorView == null)
+                        foreach (ViewPlan view in areaViews)
                         {
-                            string levelWord = "";
-
-                           if (typeFoundation == "Basement" || typeFoundation == "Crawlspace")
-                            {
-                                levelWord = "Level";
-                            }
-                           else
-                            {
-                                levelWord = "Floor";
-                            }
-
-                           List<Level> levelList = Utils.GetLevelByNameContains(curDoc, levelWord);
-
-                           List<View> areaViews = new List<View>();
-
-                            foreach (Level curlevel in levelList)
-                            {
-                                // get the category & set category Id
-                                Category areaCat = curDoc.Settings.Categories.get_Item(BuiltInCategory.OST_Areas);
-
-                                // get the element Id of the current level
-                                ElementId curLevelId = curlevel.Id;
-
-                                // create & set variable for the view template
-                                View vtFloorAreas = Utils.GetViewTemplateByName(curDoc, "10-Floor Area");
-
-                                // create the area plan
-                                ViewPlan areaFloor = ViewPlan.CreateAreaPlan(curDoc, schemeFloor.Id, curLevelId);
-                                areaFloor.ViewTemplateId = vtFloorAreas.Id;
-                                areaFloor.SetColorFillSchemeId(areaCat.Id, schemeColorFill.Id);
-
-                                areaFloorView = areaFloor;
-
-                                areaViews.Add(areaFloor);
-                            }
-
-                            foreach (ViewPlan curView in areaViews)
-                            {
-                                //set the color scheme                                   
-
-                                // create insertion points
-                                XYZ insStart = new XYZ(50, 0, 0);
-
-                                UV insPoint = new UV(insStart.X, insStart.Y);
-                                UV offset = new UV(0, 8);
-
-                                XYZ tagInsert = new XYZ(50, 0, 0);
-                                XYZ tagOffset = new XYZ(0, 8, 0);
-
-                                if (curView.Name == "Lower Level")
-                                {
-                                    // add these areas
-                                    List<clsAreaData> areasLower = new List<clsAreaData>()
-                                        {
-                                            new clsAreaData("13", "Living", "Total Covered", "A"),
-                                            new clsAreaData("14", "Mechanical", "Total Covered", "K"),
-                                            new clsAreaData("15", "Unfinished Basement", "Total Covered", "L"),
-                                            new clsAreaData("16", "Option", "Options", "H")
-                                        };
-                                    foreach (var areaInfo in areasLower)
-                                    {
-                                        Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
-                                    }
-                                }
-                                else if (curView.Name == "Main Level" || curView.Name == "First Floor")
-                                {
-                                    // add these areas
-                                    List<clsAreaData> areasMain = new List<clsAreaData>
-                                        {
-                                            new clsAreaData("1", "Living", "Total Covered", "A"),
-                                            new clsAreaData("2", "Garage", "Total Covered", "B"),
-                                            new clsAreaData("3", "Covered Patio", "Total Covered", "C"),
-                                            new clsAreaData("4", "Covered Porch", "Total Covered", "D"),
-                                            new clsAreaData("5", "Porte Cochere", "Total Covered", "E"),
-                                            new clsAreaData("6", "Patio", "Total Uncovered", "F"),
-                                            new clsAreaData("7", "Porch", "Total Uncovered", "G"),
-                                            new clsAreaData("8", "Option", "Options", "H")
-                                        };
-
-                                    foreach (var areaInfo in areasMain)
-                                    {
-                                        Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
-                                    }
-                                }
-                                else
-                                {
-                                    // add these areas
-                                    List<clsAreaData> areasUpper = new List<clsAreaData>
-                                        {
-                                            new clsAreaData("9", "Living", "Total Covered", "A"),
-                                            new clsAreaData("10", "Covered Balcony", "Total Covered", "I"),
-                                            new clsAreaData("11", "Balcony", "Total Uncovered", "J"),
-                                            new clsAreaData("12", "Option", "Options", "H")
-                                        };
-
-                                    foreach (var areaInfo in areasUpper)
-                                    {
-                                        Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
-                                    }
-                                }
-                            }
+                            ProcessViewPlan(curDoc, view);
                         }
+                    }
 
-                        #endregion
+                    private List<View> CreateAreaPlans(Document curDoc, List<Level> levels, FloorScheme schemeFloor)
+                    {
+                        List<View> areaViews = new List<View>();
+                        foreach (Level level in levels)
+                        {
+                            ViewPlan areaFloor = CreateAreaPlanForLevel(curDoc, level, schemeFloor);
+                            areaViews.Add(areaFloor);
+                        }
+                        return areaViews;
+                    }
 
-                        #region Floor Area Schedule
+                    private ViewPlan CreateAreaPlanForLevel(Document curDoc, Level level, FloorScheme schemeFloor)
+                    {
+                        // Creation logic here...
+                    }
 
-                        // if the floor area plans exist, create the schedule                        
+                    private void ProcessViewPlan(Document curDoc, ViewPlan view)
+                    {
+                        List<clsAreaData> areaData = GetAreaDataForView(view);
+                        foreach (var data in areaData)
+                        {
+                            // Tagging logic here...
+                        }
+                    }
 
-                        // get the area scheme for the schedule
-                        AreaScheme curAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Floor");
+                    private List<clsAreaData> GetAreaDataForView(ViewPlan view)
+                    {
+                        // Switch-case or dictionary to return the correct list based on view.Name
+                    }
+
+
+                    #endregion
+
+                    #region Floor Area Schedule
+
+                    // if the floor area plans exist, create the schedule                        
+
+                    // get the area scheme for the schedule
+                    AreaScheme curAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Floor");
 
                         // create the new schedule
                         ViewSchedule newFloorSched = Utils.CreateAreaSchedule(curDoc, "Floor Areas - Elevation " + Globals.ElevDesignation, curAreaScheme);

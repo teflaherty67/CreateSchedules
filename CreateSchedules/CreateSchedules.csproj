@@ -59,6 +59,7 @@
     <Compile Include="App.cs" />
     <Compile Include="Classes\clsButtonDataClass.cs" />
     <Compile Include="Classes\clsAreaData.cs" />
+    <Compile Include="cmdCreateSchedulesChatGPT.cs" />
     <Compile Include="cmdCreateSchedules.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
