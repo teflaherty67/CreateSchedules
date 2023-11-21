@@ -251,11 +251,8 @@ namespace CreateSchedules
 
                         // if the floor area plans exist, create the schedule                        
 
-                        // get the area scheme for the schedule
-                        AreaScheme curAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Floor");
-
                         // create the new schedule
-                        ViewSchedule newFloorSched = Utils.CreateAreaSchedule(curDoc, "Floor Areas - Elevation " + Globals.ElevDesignation, curAreaScheme);
+                        ViewSchedule newFloorSched = Utils.CreateAreaSchedule(curDoc, "Floor Areas - Elevation " + Globals.ElevDesignation, floorAreaScheme);
 
                         if (areaFloorView != null)
                         {
@@ -474,144 +471,110 @@ namespace CreateSchedules
                                 if (curView.Name == "Lower Level")
                                 {
                                     // add these areas
-                                    List<clsAreaData> areasLower = new List<clsAreaData>();
+                                    List<clsAreaData> areasLower = new List<clsAreaData>()
                                     {
-
+                                        new clsAreaData("5", "Standard"),
+                                        new clsAreaData("6", "Option")
+                                    };
+                                    foreach (var areaInfo in areasLower)
+                                    {
+                                        Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
+                                    }
+                                }
+                                else if (curView.Name == "Main Level" || curView.Name == "First Floor")
+                                {
+                                    // add these areas
+                                    List<clsAreaData> areasMain = new List<clsAreaData>()
+                                    {
+                                        new clsAreaData("1", "Standard"),
+                                        new clsAreaData("2", "Option")
+                                    };
+                                    foreach (var areaInfo in areasMain)
+                                    {
+                                        Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
+                                    }
+                                }
+                                else
+                                {
+                                    // add these areas
+                                    List<clsAreaData> areasUpper = new List<clsAreaData>()
+                                    {
+                                        new clsAreaData("1", "Standard"),
+                                        new clsAreaData("2", "Option")
+                                    };
+                                    foreach (var areaInfo in areasUpper)
+                                    {
+                                        Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
                                     }
                                 }
                             }
                         }
                     }
 
+                    #endregion
 
+                    #region Frame Area Schedule
 
-                    if (frameAreaScheme != null)
+                    // if the frame area plans, exist create the schedule
+
+                    // create the new schedule
+                    ViewSchedule newFrameSched = Utils.CreateAreaSchedule(curDoc, "Frame Areas - Elevation " + Globals.ElevDesignation, frameAreaScheme);
+
+                    if (areaFrameView != null)
                     {
-                        
+                        if (floorNum == 2 ||  floorNum == 3)
+                        {
+                            // get the element Id fo the fields to be used in the schedule
+                            ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "Area Category");
+                            ElementId nameFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.ROOM_NAME);
+                            ElementId levelFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.ROOM_LEVEL_ID);
+                            ElementId areaFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.ROOM_AREA);
 
-                        
+                            // create the fields & set the formatting properties
+                            ScheduleField catField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, catFieldId);
+                            catField.IsHidden = true;
 
-                        // if not, create the area plans
+                            ScheduleField nameField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, nameFieldId);
+                            nameField.IsHidden = true;
 
-                        if (areaFrameView == null)
-                        {                        
+                            ScheduleField levelField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, levelFieldId);
+                            levelField.IsHidden = false;
+                            levelField.ColumnHeading = "Level";
+                            levelField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                            levelField.HorizontalAlignment = ScheduleHorizontalAlignment.Left;
 
-                            List<Level> levelList = Utils.GetLevelByNameContains(curDoc, levelWord);
+                            ScheduleField areaField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, areaFieldId);
+                            areaField.IsHidden = false;
+                            areaField.ColumnHeading = "Area";
+                            areaField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                            areaField.HorizontalAlignment = ScheduleHorizontalAlignment.Right;
+                            areaField.DisplayType = ScheduleFieldDisplayType.Totals;
 
-                            ElementId schemeFrameId = frameAreaScheme.Id;
+                            FormatOptions formatOpts = new FormatOptions();
+                            formatOpts.UseDefault = false;
+                            formatOpts.SetUnitTypeId(UnitTypeId.SquareFeet);
+                            formatOpts.SetSymbolTypeId(SymbolTypeId.Sf);
 
-                            List<View> frameViews = new List<View>();                            
+                            areaField.SetFormatOptions(formatOpts);
 
-                            foreach (Level curlevel in levelList)
-                            {
-                                ElementId curLevelId = curlevel.Id;
+                            // create the filters
+                            ScheduleFilter catFilter = new ScheduleFilter(catField.FieldId, ScheduleFilterType.NotContains, "Options");
+                            newFrameSched.Definition.AddFilter(catFilter);
 
-                                View vtFrameAreas = Utils.GetViewTemplateByName(curDoc, "11-Frame Area");
+                            ScheduleFilter areaFilter = new ScheduleFilter(areaField.FieldId, ScheduleFilterType.GreaterThan, 0.0);
 
-                                ViewPlan areaFrame = ViewPlan.CreateAreaPlan(curDoc, schemeFrameId, curLevelId);
-                                
-                                areaFrame.ViewTemplateId = vtFrameAreas.Id;
+                            // set the sorting
+                            ScheduleSortGroupField catSort = new ScheduleSortGroupField(catField.FieldId, ScheduleSortOrder.Ascending);
+                            catSort.ShowHeader = true;
+                            catSort.ShowBlankLine = true;
 
-                                frameViews.Add(areaFrame);                                
+                            ScheduleSortGroupField nameSort = new ScheduleSortGroupField(nameField.FieldId, ScheduleSortOrder.Ascending);
+                            nameSort.ShowHeader = true;
+                            nameSort.ShowFooter = true;
 
-                                // loop through each newly created area plan
-
-                                foreach (View curView in frameViews)
-                                {
-                                    uidoc.ActiveView = curView;
-
-                                    //set the color scheme
-
-                                    Parameter level = curView.LookupParameter("Associated Level");
-
-                                    if (level.ToString() == "Lower Level")
-                                    {
-                                        // add these areas, can this be done as a data class?
-
-                                        // need to set a range and put this in a loop that increments the insPoint
-
-                                        XYZ insStart = new XYZ(0, 0, 0);
-
-                                        double calcOffset = 1.0 * curDoc.ActiveView.Scale;
-
-                                        XYZ offset = new XYZ(0, calcOffset, 0);
-
-                                        UV insPoint = new UV(insStart.X, insStart.Y);
-
-                                        Area areaStandard1 = curDoc.Create.NewArea(areaFrame, insPoint);
-                                        areaStandard1.Number = "1";
-                                        areaStandard1.Name = "Standard";
-
-                                        Area areaOption1 = curDoc.Create.NewArea(areaFrame, insPoint);
-                                        areaOption1.Number = "2";
-                                        areaOption1.Name = "Option";
-
-                                        // !!! still need to set values for Area Category & Comments
-                                    }
-                                    else if (level.ToString() == "Main Level" || level.ToString() == "First Floor")
-                                    {
-                                        // add these areas, can this be done as a data class?
-
-                                        // need to set a range and put this in a loop that increments the insPoint
-
-                                        XYZ insStart = new XYZ(0, 0, 0);
-
-                                        double calcOffset = 1.0 * curDoc.ActiveView.Scale;
-
-                                        XYZ offset = new XYZ(0, calcOffset, 0);
-
-                                        UV insPoint = new UV(insStart.X, insStart.Y);
-
-                                        Area areaStandard2 = curDoc.Create.NewArea(areaFrame, insPoint);
-                                        areaStandard2.Number = "3";
-                                        areaStandard2.Name = "Standard";                                        
-
-                                        Area areaOption2 = curDoc.Create.NewArea(areaFrame, insPoint);
-                                        areaOption2.Number = "4";
-                                        areaOption2.Name = "Option";
-
-                                        // !!! still need to set values for Area Category & Comments
-                                    }
-                                    else if (level.ToString() == "Upper Level" || level.ToString() == "Second Floor")
-                                    {
-                                        // add these areas, can this be done as a data class?
-
-                                        // need to set a range and put this in a loop that increments the insPoint
-
-                                        XYZ insStart = new XYZ(0, 0, 0);
-
-                                        double calcOffset = 1.0 * curDoc.ActiveView.Scale;
-
-                                        XYZ offset = new XYZ(0, calcOffset, 0);
-
-                                        UV insPoint = new UV(insStart.X, insStart.Y);
-
-                                        Area areaStandard3 = curDoc.Create.NewArea(areaFrame, insPoint);
-                                        areaStandard3.Number = "5";
-                                        areaStandard3.Name = "Standard";
-
-                                        Area areaOption3 = curDoc.Create.NewArea(areaFrame, insPoint);
-                                        areaOption3.Number = "6";
-                                        areaOption3.Name = "Option";
-                                    }
-                                }
-                            }
+                            ScheduleSortGroupField levelSort = new ScheduleSortGroupField(levelField.FieldId, ScheduleSortOrder.Ascending);
                         }
-
-                        #endregion
-
-                        // if the frame area plans exist, create the schedule
-
-                        // get the Area category Id
-                        ElementId areaCatId = new ElementId(BuiltInCategory.OST_Areas); // ??? is this needed
-
-                        // get the area scheme for the schedule
-                        AreaScheme curAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Frame");
-
-                        // create the new schedule
-                        ViewSchedule newFrameSched = Utils.CreateAreaSchedule(curDoc, "Frame Areas - Elevation " + Globals.ElevDesignation, curAreaScheme);
-
-                        if (areaFrameView != null)
+                    }
                         {
                             if (floorNum == 1)
                             {
@@ -659,61 +622,9 @@ namespace CreateSchedules
                                 catSort.ShowBlankLine = true;
                             }
 
-                            else if (floorNum == 2 || floorNum == 3)
-                            {
-                                // create a list of the fields for the schedule
-                                List<string> paramNames = new List<string>() { "Area Category", "Name", "Level", "Area" };
+                            
 
-                                // get the associated parameters & add them to the schedule
-                                List<Parameter> paramsFloorSingle = Utils.GetParametersByName(curDoc, paramNames, BuiltInCategory.OST_Areas);
-                                Utils.AddFieldsToSchedule(curDoc, newFrameSched, paramsFloorSingle);
-
-                                // create the fields to use for filter and formatting
-
-                                // get element Id of the parameters
-                                ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "Area Category");
-                                ElementId nameFieldId = Utils.GetProjectParameterId(curDoc, "Name");
-                                ElementId levelFieldId = Utils.GetProjectParameterId(curDoc, "Level");
-                                ElementId areaFieldId = Utils.GetProjectParameterId(curDoc, "Area");
-
-
-                                ScheduleField catField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, catFieldId);
-                                catField.IsHidden = true;
-
-                                ScheduleField nameField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, nameFieldId);
-                                nameField.IsHidden = true;
-
-                                ScheduleField levelField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, levelFieldId);
-                                levelField.IsHidden = false;
-                                levelField.ColumnHeading = "Level";
-                                levelField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
-                                levelField.HorizontalAlignment = ScheduleHorizontalAlignment.Left;
-
-                                ScheduleField areaField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, areaFieldId);
-                                areaField.IsHidden = false;
-                                areaField.ColumnHeading = "Area";
-                                areaField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
-                                areaField.HorizontalAlignment = ScheduleHorizontalAlignment.Right;
-                                // areaField.IsCalculatedField = true;  // ??? can this be set to "Calculate totals"
-
-                                // create the filters
-
-                                ScheduleFilter catFilter = new ScheduleFilter(catField.FieldId, ScheduleFilterType.Contains, "Options");
-                                newFrameSched.Definition.AddFilter(catFilter);
-
-                                ScheduleFilter areaFilter = new ScheduleFilter(areaField.FieldId, ScheduleFilterType.GreaterThan, "0 SF");
-
-                                // set the sorting
-
-                                ScheduleSortGroupField catSort = new ScheduleSortGroupField(catField.FieldId, ScheduleSortOrder.Ascending);
-                                catSort.ShowHeader = true;
-                                catSort.ShowBlankLine = true;
-
-                                ScheduleSortGroupField nameSort = new ScheduleSortGroupField(nameField.FieldId, ScheduleSortOrder.Ascending);
-                                nameSort.ShowHeader = true;
-                                nameSort.ShowFooter = true;
-
-                                ScheduleSortGroupField levelSort = new ScheduleSortGroupField(levelField.FieldId, ScheduleSortOrder.Ascending);
+                                
                             }
                         }
                     }
