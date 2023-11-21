@@ -425,10 +425,71 @@ namespace CreateSchedules
 
                     #region Frame Area Plans
 
+                    // check to see if the frame area plans exist
+                    ViewPlan areaFrameView = Utils.GetAreaPlanByViewFamilyName(curDoc, Globals.ElevDesignation + " Frame");
+
+                    // if the frame area scheme exists, check to see if the frame area plans exist
                     if (frameAreaScheme != null)
                     {
-                        // check to see if the frame area plans exist
-                        ViewPlan areaFrameView = Utils.GetAreaPlanByViewFamilyName(curDoc, Globals.ElevDesignation + " Frame");
+                        // if not, create the area plans
+                        if (areaFrameView ==  null)
+                        {
+                            List<Level> levelList = Utils.GetLevelByNameContains(curDoc, levelWord);
+
+                            List<View> areaViews = new List<View>();
+
+                            // loop through the levels and create the views
+                            foreach (Level curLevel in levelList)
+                            {
+                                // get the category & set the category Id
+                                Category areaCat = curDoc.Settings.Categories.get_Item(BuiltInCategory.OST_Areas);
+
+                                // get the element Id of the current level
+                                ElementId curLevelId = curLevel.Id;
+
+                                // create & set variable for the view template
+                                View vtFrameAreas = Utils.GetViewTemplateByName(curDoc, "11-Frame Area");
+
+                                // create the area plan
+                                ViewPlan areaFrame = ViewPlan.CreateAreaPlan(curDoc, frameAreaScheme.Id, curLevelId);
+                                areaFrame.ViewTemplateId = vtFrameAreas.Id;
+                                areaFrame.SetColorFillSchemeId(areaCat.Id, frameColorScheme.Id);
+
+                                areaFrameView = areaFrame;
+
+                                areaViews.Add(areaFrame);
+                            }
+
+                            foreach (ViewPlan curView in areaViews)
+                            {
+                                // create insertion points
+                                XYZ insStart = new XYZ(50, 0, 0);
+
+                                UV insPoint = new UV(insStart.X, insStart.Y);
+                                UV offset = new UV(0, 8);
+
+                                XYZ tagInsert = new XYZ(50, 0, 0);
+                                XYZ tagOffset = new XYZ(0, 8, 0);
+
+                                if (curView.Name == "Lower Level")
+                                {
+                                    // add these areas
+                                    List<clsAreaData> areasLower = new List<clsAreaData>();
+                                    {
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+
+                    if (frameAreaScheme != null)
+                    {
+                        
+
+                        
 
                         // if not, create the area plans
 
