@@ -573,63 +573,55 @@ namespace CreateSchedules
                             nameSort.ShowFooter = true;
 
                             ScheduleSortGroupField levelSort = new ScheduleSortGroupField(levelField.FieldId, ScheduleSortOrder.Ascending);
+
+                            newFrameSched.Definition.IsItemized = false;
                         }
-                    }
+                        else
                         {
-                            if (floorNum == 1)
-                            {
-                                // create a list of the fields for the schedule
-                                List<string> paramNames = new List<string>() { "Area Category", "Name", "Area" };
+                            // get the element Id fo the fields to be used in the schedule
+                            ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "Area Category");
+                            ElementId nameFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.ROOM_NAME);
+                            ElementId areaFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.ROOM_AREA);
 
-                                // get the associated parameters & add them to the schedule
-                                List<Parameter> paramsFloorSingle = Utils.GetParametersByName(curDoc, paramNames, BuiltInCategory.OST_Areas);
-                                Utils.AddFieldsToSchedule(curDoc, newFrameSched, paramsFloorSingle);
+                            // create the fields & set the formatting properties
+                            ScheduleField catField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, catFieldId);
+                            catField.IsHidden = true;
 
-                                // create the fields to use for filter and formatting
+                            ScheduleField nameField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, nameFieldId);
+                            nameField.IsHidden = false;
+                            nameField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                            nameField.HorizontalAlignment = ScheduleHorizontalAlignment.Left;
 
-                                // get element Id of the parameters
-                                ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "Area Category");
-                                ElementId nameFieldId = Utils.GetProjectParameterId(curDoc, "Name");                                
-                                ElementId areaFieldId = Utils.GetProjectParameterId(curDoc, "Area");
+                            ScheduleField areaField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, areaFieldId);
+                            areaField.IsHidden = false;
+                            areaField.ColumnHeading = "Area";
+                            areaField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                            areaField.HorizontalAlignment = ScheduleHorizontalAlignment.Right;
+                            areaField.DisplayType = ScheduleFieldDisplayType.Totals;
 
-                                ScheduleField catField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, catFieldId);
-                                catField.IsHidden = true;
+                            FormatOptions formatOpts = new FormatOptions();
+                            formatOpts.UseDefault = false;
+                            formatOpts.SetUnitTypeId(UnitTypeId.SquareFeet);
+                            formatOpts.SetSymbolTypeId(SymbolTypeId.Sf);
 
-                                ScheduleField nameField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, nameFieldId);
-                                nameField.IsHidden = false;                               
-                                nameField.ColumnHeading = "Name";
-                                nameField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
-                                nameField.HorizontalAlignment = ScheduleHorizontalAlignment.Left;
+                            areaField.SetFormatOptions(formatOpts);
 
-                                ScheduleField areaField = newFrameSched.Definition.AddField(ScheduleFieldType.Instance, areaFieldId);
-                                areaField.IsHidden = false;
-                                areaField.ColumnHeading = "Area";
-                                areaField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
-                                areaField.HorizontalAlignment = ScheduleHorizontalAlignment.Right;
-                                // areaField.IsCalculatedField = true;  // ??? can this be set to "Calculate totals"
+                            // create the filters
+                            ScheduleFilter catFilter = new ScheduleFilter(catField.FieldId, ScheduleFilterType.NotContains, "Options");
+                            newFrameSched.Definition.AddFilter(catFilter);
 
-                                // create the filters
+                            ScheduleFilter areaFilter = new ScheduleFilter(areaField.FieldId, ScheduleFilterType.GreaterThan, 0.0);
 
-                                ScheduleFilter catFilter = new ScheduleFilter(catField.FieldId, ScheduleFilterType.Contains, "Options");
-                                newFrameSched.Definition.AddFilter(catFilter);
+                            // set the sorting
+                            ScheduleSortGroupField catSort = new ScheduleSortGroupField(catField.FieldId, ScheduleSortOrder.Ascending);
+                            catSort.ShowHeader = true;
+                            catSort.ShowBlankLine = true;                           
 
-                                ScheduleFilter areaFilter = new ScheduleFilter(areaField.FieldId, ScheduleFilterType.GreaterThan, "0 SF");
-
-                                // set the sorting
-
-                                ScheduleSortGroupField catSort = new ScheduleSortGroupField(catField.FieldId, ScheduleSortOrder.Ascending);
-                                catSort.ShowHeader = true;                                 
-                                catSort.ShowBlankLine = true;
-                            }
-
-                            
-
-                                
-                            }
+                            newFrameSched.Definition.IsItemized = false;
                         }
                     }
+                    #endregion
                 }
-
                 #endregion
 
                 #region Roof Ventilation Schedules
