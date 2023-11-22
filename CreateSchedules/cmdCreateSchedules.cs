@@ -473,8 +473,8 @@ namespace CreateSchedules
                                     // add these areas
                                     List<clsAreaData> areasLower = new List<clsAreaData>()
                                     {
-                                        new clsAreaData("5", "Standard"),
-                                        new clsAreaData("6", "Option")
+                                        new clsAreaData("5", "Standard", "", ""),
+                                        new clsAreaData("6", "Option", "Options", "")
                                     };
                                     foreach (var areaInfo in areasLower)
                                     {
@@ -486,8 +486,8 @@ namespace CreateSchedules
                                     // add these areas
                                     List<clsAreaData> areasMain = new List<clsAreaData>()
                                     {
-                                        new clsAreaData("1", "Standard"),
-                                        new clsAreaData("2", "Option")
+                                        new clsAreaData("1", "Standard", "", ""),
+                                        new clsAreaData("2", "Option", "Options", "")
                                     };
                                     foreach (var areaInfo in areasMain)
                                     {
@@ -499,8 +499,8 @@ namespace CreateSchedules
                                     // add these areas
                                     List<clsAreaData> areasUpper = new List<clsAreaData>()
                                     {
-                                        new clsAreaData("1", "Standard"),
-                                        new clsAreaData("2", "Option")
+                                        new clsAreaData("3", "Standard", "", ""),
+                                        new clsAreaData("4", "Option", "Options", "")
                                     };
                                     foreach (var areaInfo in areasUpper)
                                     {
@@ -517,8 +517,12 @@ namespace CreateSchedules
 
                     // if the frame area plans, exist create the schedule
 
+                    // create & set variable for the view template
+                    View vtFrameSched = Utils.GetViewTemplateByName(curDoc, "Frame Areas");
+
                     // create the new schedule
                     ViewSchedule newFrameSched = Utils.CreateAreaSchedule(curDoc, "Frame Areas - Elevation " + Globals.ElevDesignation, frameAreaScheme);
+                    newFrameSched.ViewTemplateId = vtFrameSched.Id;
 
                     if (areaFrameView != null)
                     {
@@ -567,12 +571,15 @@ namespace CreateSchedules
                             ScheduleSortGroupField catSort = new ScheduleSortGroupField(catField.FieldId, ScheduleSortOrder.Ascending);
                             catSort.ShowHeader = true;
                             catSort.ShowBlankLine = true;
+                            newFrameSched.Definition.AddSortGroupField(catSort);
 
                             ScheduleSortGroupField nameSort = new ScheduleSortGroupField(nameField.FieldId, ScheduleSortOrder.Ascending);
                             nameSort.ShowHeader = true;
                             nameSort.ShowFooter = true;
+                            newFrameSched.Definition.AddSortGroupField(nameSort);
 
                             ScheduleSortGroupField levelSort = new ScheduleSortGroupField(levelField.FieldId, ScheduleSortOrder.Ascending);
+                            newFrameSched.Definition.AddSortGroupField(levelSort);
 
                             newFrameSched.Definition.IsItemized = false;
                         }
