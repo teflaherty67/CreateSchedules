@@ -413,6 +413,39 @@ namespace CreateSchedules
             return null;
         }
 
+        public static ViewSchedule GetViewScheduleTemplateByName(Document curDoc, string viewSchedTemplateName)
+        {
+            List<ViewSchedule> viewSchedTemplateList = GetAllViewScheduleTemplates(curDoc);
+
+            foreach (ViewSchedule v in viewSchedTemplateList)
+            {
+                if (v.Name == viewSchedTemplateName)
+                {
+                    return v;
+                }
+            }
+
+            return null;
+        }
+
+        private static List<ViewSchedule> GetAllViewScheduleTemplates(Document curDoc)
+        {
+            List<ViewSchedule> returnList = new List<ViewSchedule>();
+            List<ViewSchedule> viewList = GetAllSchedules(curDoc);
+
+            //loop through views and check if is view template
+            foreach (ViewSchedule v in viewList)
+            {
+                if (v.IsTemplate == true)
+                {
+                    //add view template to list
+                    returnList.Add(v);
+                }
+            }
+
+            return returnList;
+        }
+
         public static List<View> GetAllViewTemplates(Document curDoc)
         {
             List<View> returnList = new List<View>();

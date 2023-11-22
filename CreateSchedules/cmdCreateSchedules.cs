@@ -518,7 +518,7 @@ namespace CreateSchedules
                     // if the frame area plans, exist create the schedule
 
                     // create & set variable for the view template
-                    View vtFrameSched = Utils.GetViewTemplateByName(curDoc, "-Frame Areas-");
+                    View vtFrameSched = Utils.GetViewScheduleTemplateByName(curDoc, "-Frame Areas-");
 
                     // create the new schedule
                     ViewSchedule newFrameSched = Utils.CreateAreaSchedule(curDoc, "Frame Areas - Elevation " + Globals.ElevDesignation, frameAreaScheme);
