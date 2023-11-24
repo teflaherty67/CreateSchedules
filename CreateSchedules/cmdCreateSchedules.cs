@@ -637,6 +637,34 @@ namespace CreateSchedules
 
                 #region Roof Ventilation Schedules
 
+                // check to see if the attic area scheme exists
+
+                if (chbAtticResult == true)
+                {
+                    // set the variable for the attic area scheme name
+                    AreaScheme atticAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Roof Ventilation");
+
+                    // set the variable for the color fill scheme
+                    ColorFillScheme atticColorScheme = Utils.GetColorFillSchemeByName(curDoc, "Attic Area", atticAreaScheme);
+
+                    if (atticAreaScheme == null || atticColorScheme == null)
+                    {
+                        // if null, warn the user & exit the command
+                        TaskDialog tdAtticError = new TaskDialog("Error");
+                        tdAtticError.MainIcon = TaskDialogIcon.TaskDialogIconWarning;
+                        tdAtticError.Title = "Create Schedules";
+                        tdAtticError.TitleAutoPrefix = false;
+                        tdAtticError.MainContent = "Either the attic Area Scheme, or the attic Color Scheme, does not exist " +
+                            "or is named incorrectly. Resolve the issue & try again.";
+                        tdAtticError.CommonButtons = TaskDialogCommonButtons.Close;
+
+                        TaskDialogResult tdAtticErrorRes = tdAtticError.Show();
+
+                        return Result.Failed;
+                    }
+
+                }
+
                 // set a variable for the equipment schedule
 
                 ViewSchedule schedEquipment = Utils.GetScheduleByNameContains(curDoc, "Roof Ventilation Equipment - Elevation " + Globals.ElevDesignation);
