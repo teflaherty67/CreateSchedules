@@ -251,7 +251,6 @@ namespace CreateSchedules
 
                         // if the floor area plans exist, create the schedule
 
-
                         // create & set variable for the view template
                         View vtFloorSched = Utils.GetViewScheduleTemplateByName(curDoc, "-Schedule-");
 
