@@ -635,7 +635,7 @@ namespace CreateSchedules
                 }
                 #endregion
 
-                #region Roof Ventilation Schedules
+                #region Attic Areas
 
                 // check to see if the attic area scheme exists
 
@@ -663,61 +663,74 @@ namespace CreateSchedules
                         return Result.Failed;
                     }
 
-                }
+                    #region Attic Area Plans
 
-                // set a variable for the equipment schedule
+                    // check if the attic area plans exists
+                    ViewPlan areaAtticView = Utils.GetAreaPlanByViewFamilyName(curDoc, Globals.ElevDesignation + " Roof Ventilation");
 
-                ViewSchedule schedEquipment = Utils.GetScheduleByNameContains(curDoc, "Roof Ventilation Equipment - Elevation " + Globals.ElevDesignation);
+                    // create a variable for the attic level
+                    string atticLevel = "";
 
-                // check to see if the attic area scheme exists
-
-                if (chbAtticResult == true)
-                {
-                    // set the variable for the frame Area Scheme name
-
-                    AreaScheme schemeAttic = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Roof Ventilation");
-
-                    if (schemeAttic == null)
+                    // if the attic area scheme exists, check if the attic area plans exist
+                    if (atticAreaScheme != null)
                     {
-                        // if null, warn the user & exit the command
-
-                        Forms.MessageBox.Show("The Area Scheme does not exist or is named incorrectly. Resolve the issue & try again.");
-                        return Result.Failed;
-                    }
-
-                    if (schemeAttic != null)
-                    {
-                        // set some variables
-
-                        ViewPlan areaAtticView = Utils.GetAreaPlanByViewFamilyName(curDoc, Globals.ElevDesignation + " Roof Ventilation");
-
                         // if not, create the area plans
-
                         if (areaAtticView == null)
                         {
-                            
+                            if (typeFoundation == "Basement" || typeFoundation == "Crawlspace" && floorNum == 3)
+                            {
+                                atticLevel = "Upper Level";
+                            }
+                            else if (typeFoundation == "Basement" || typeFoundation == "Crawlspace" && floorNum == 2)
+                            {
+                                atticLevel = "Main Level";
+                            }
+                            else if (typeFoundation == "Slab" && floorNum == 3)
+                            {
+                                atticLevel = "Third Floor";
+                            }
+                            else if (typeFoundation == "Slab" && floorNum == 2)
+                            {
+                                atticLevel = "Second Floor";
+                            }
+                            else
+                            {
+                                atticLevel = "First Floor";
+                            }
 
-                            Level levelAttic = Utils.GetLevelByName(curDoc, levelWord);
+                            // get the category
+                            Category areaCat = curDoc.Settings.Categories.get_Item(BuiltInCategory.OST_Areas);
 
-                            ElementId schemeAtticId = schemeAttic.Id;
+                            // get the level for attic area plan
+                            Level levelAttic = Utils.GetLevelByName(curDoc, atticLevel);
 
-                            ElementId levelAtticId = levelAttic.Id;
-
+                            // create & set variable for the view template
                             View vtAtticAreas = Utils.GetViewTemplateByName(curDoc, "12-Attic Area");
 
-                            ViewPlan areaAttic = ViewPlan.CreateAreaPlan(curDoc, schemeAtticId, levelAtticId);
+                            // create the area plan
+                            ViewPlan areaAttic = ViewPlan.CreateAreaPlan(curDoc, atticAreaScheme.Id, levelAttic.Id);
                             areaAttic.Name = "Roof";
                             areaAttic.ViewTemplateId = vtAtticAreas.Id;
+                            areaAttic.SetColorFillSchemeId(areaCat.Id, atticColorScheme.Id);
 
-                            uidoc.ActiveView = areaAttic;
-
-                            XYZ insStart = new XYZ(0, 0, 0);
-
-                            double calcOffset = 1.0 * curDoc.ActiveView.Scale;
-
-                            XYZ offset = new XYZ(0, calcOffset, 0);
+                            // create insertion points                            
+                            XYZ insStart = new XYZ(50, 0, 0);
 
                             UV insPoint = new UV(insStart.X, insStart.Y);
+                            UV offset = new UV(0, 8);
+
+                            XYZ tagInsert = new XYZ(50, 0, 0);
+                            XYZ tagOffset = new XYZ(0, 8, 0);
+
+                        }
+                    }
+                }
+
+                
+
+                    
+
+
 
                             Area areaAttic1 = curDoc.Create.NewArea(areaAttic, insPoint);
                             areaAttic1.Number = "1";
