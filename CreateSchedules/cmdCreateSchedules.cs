@@ -645,7 +645,7 @@ namespace CreateSchedules
                     AreaScheme atticAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Roof Ventilation");
 
                     // set the variable for the color fill scheme
-                    ColorFillScheme atticColorScheme = Utils.GetColorFillSchemeByName(curDoc, "Attic Area", atticAreaScheme);
+                    ColorFillScheme atticColorScheme = Utils.GetColorFillSchemeByName(curDoc, "Attic", atticAreaScheme);
 
                     if (atticAreaScheme == null || atticColorScheme == null)
                     {
@@ -788,61 +788,8 @@ namespace CreateSchedules
                         ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "150 Ratio");
                     }
 
+                    #endregion
                 }
-
-
-
-
-
-                
-
-                    if (typeAttic == "Single")
-                    {
-                        // create a list of the fields for the schedule
-                        List<string> paramNames = new List<string>() { "Area", "1/150 Ratio" }; // ??? add calculated parameter
-
-                        // get the associated parameters & add them to the schedule
-                        List<Parameter> paramsAtticSingle = Utils.GetParametersByName(curDoc, paramNames, BuiltInCategory.OST_Areas);
-                        Utils.AddFieldsToSchedule(curDoc, newAtticSched, paramsAtticSingle);
-                    }
-
-                    else if (typeAttic == "Multiple")
-                    {
-                        // create a list of the fields for the schedule
-                        List<string> paramNames = new List<string>() { "Name", "Area", "1/150 Ratio" }; // ??? add calculated parameter
-
-                        // get the associated parameters & add them to the schedule
-                        List<Parameter> paramsAtticMulti = Utils.GetParametersByName(curDoc, paramNames, BuiltInCategory.OST_Areas);
-                        Utils.AddFieldsToSchedule(curDoc, newAtticSched, paramsAtticMulti);
-                    }
-
-                    if (schedEquipment == null)
-                    {
-                        // duplicate the first schedule found with Roof Ventilation Equipment in the name
-                        List<ViewSchedule> listSched = Utils.GetAllScheduleByNameContains(curDoc, "Roof Ventilation Equipment");
-
-                        ViewSchedule dupSched = listSched.FirstOrDefault();
-
-                        Element viewSched = curDoc.GetElement(dupSched.Duplicate(ViewDuplicateOption.Duplicate));
-
-                        // rename the duplicated schedule to the new elevation
-
-                        string originalName = viewSched.Name;
-                        string[] schedTitle = originalName.Split('C');
-
-                        string curTitle = schedTitle[0];
-
-                        string lastChar = curTitle.Substring(curTitle.Length - 2);
-                        string newLast = Globals.ElevDesignation.ToString();
-
-                        viewSched.Name = curTitle.Replace(lastChar, newLast);
-
-                        // set the design option to the specified elevation designation
-
-                        DesignOption curOption = Utils.getDesignOptionByName(curDoc, "Elevation : " + lastChar); // !!! this code throws an error 
-                    }
-                }
-
                 #endregion
 
                 t.Commit();

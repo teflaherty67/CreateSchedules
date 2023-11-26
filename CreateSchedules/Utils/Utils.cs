@@ -105,7 +105,7 @@ namespace CreateSchedules
             return returnList;
         }
 
-        internal static Level GetLevelByName(Document doc, string levelWord)
+        internal static Level GetLevelByName(Document doc, string levelName)
         {
             List<Level> levels = GetAllLevels(doc);
 
@@ -113,7 +113,7 @@ namespace CreateSchedules
 
             foreach (Level curLevel in levels)
             {
-                if (curLevel.Name.Contains(levelWord))
+                if (curLevel.Name.Equals(levelName))
                     return returnLevel;
             }
 
