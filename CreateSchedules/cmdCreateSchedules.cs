@@ -252,7 +252,7 @@ namespace CreateSchedules
                         // if the floor area plans exist, create the schedule
 
                         // create & set variable for the view template
-                        View vtFloorSched = Utils.GetViewScheduleTemplateByName(curDoc, "-Schedule-");
+                        ViewSchedule vtFloorSched = Utils.GetViewScheduleTemplateByName(curDoc, "-Schedule-");
 
                         // create the new schedule
                         ViewSchedule newFloorSched = Utils.CreateAreaSchedule(curDoc, "Floor Areas - Elevation " + Globals.ElevDesignation, floorAreaScheme);
@@ -522,7 +522,7 @@ namespace CreateSchedules
                     // if the frame area plans, exist create the schedule
 
                     // create & set variable for the view template
-                    View vtFrameSched = Utils.GetViewScheduleTemplateByName(curDoc, "-Frame Areas-");
+                    ViewSchedule vtFrameSched = Utils.GetViewScheduleTemplateByName(curDoc, "-Frame Areas-");
 
                     // create the new schedule
                     ViewSchedule newFrameSched = Utils.CreateAreaSchedule(curDoc, "Frame Areas - Elevation " + Globals.ElevDesignation, frameAreaScheme);
@@ -696,7 +696,7 @@ namespace CreateSchedules
                             else
                             {
                                 atticLevel = "First Floor";
-                            }
+                            }                          
 
                             // get the category
                             Category areaCat = curDoc.Settings.Categories.get_Item(BuiltInCategory.OST_Areas);
@@ -713,6 +713,8 @@ namespace CreateSchedules
                             areaAttic.ViewTemplateId = vtAtticAreas.Id;
                             areaAttic.SetColorFillSchemeId(areaCat.Id, atticColorScheme.Id);
 
+                            ViewPlan curView = areaAttic;                            
+
                             // create insertion points                            
                             XYZ insStart = new XYZ(50, 0, 0);
 
@@ -722,33 +724,77 @@ namespace CreateSchedules
                             XYZ tagInsert = new XYZ(50, 0, 0);
                             XYZ tagOffset = new XYZ(0, 8, 0);
 
+                            // add these areas
+                            List<clsAreaData> areasAttic = new List<clsAreaData>()
+                            {
+                                new clsAreaData("1", "Attic 1", "", ""),
+                                new clsAreaData("2", "Attic 2", "", "")
+                            };
+                            foreach (var areaInfo in areasAttic)
+                            {
+                                Utils.CreateFloorAreaWithTag(curDoc, curView, ref insPoint, ref tagInsert, areaInfo);
+                            }
                         }
                     }
+
+                    #endregion
+
+                    #region Roof Ventilation Calculations
+
+                    // if the attic plans exist, create the ventilation calculaitons schedule
+
+                    // create & set variable for the view template
+                    ViewSchedule vtAtticSched = Utils.GetViewScheduleTemplateByName(curDoc, "-Schedule-");
+
+                    // create the new schedule
+                    ViewSchedule newAtticSched = Utils.CreateAreaSchedule(curDoc, "Roof Ventilation Calculations - Elevation " + Globals.ElevDesignation, atticAreaScheme);
+                    newAtticSched.ViewTemplateId = vtAtticSched.Id;
+
+                    if (typeAttic == "Multiple")
+                    {
+                        // get the element Id of the fields to be used in the schedule
+                        ElementId nameFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.ROOM_NAME);
+                        ElementId areaFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.ROOM_AREA);
+                        ElementId ratioFieldId = Utils.GetProjectParameterId(curDoc, "150 Ratio");
+
+                        // create the fields & set the formatting properties
+                        ScheduleField nameField = newAtticSched.Definition.AddField(ScheduleFieldType.Instance, nameFieldId);
+                        nameField.IsHidden = false;
+                        nameField.ColumnHeading = "Named Attic Space";
+                        nameField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                        nameField.HorizontalAlignment = ScheduleHorizontalAlignment.Center;
+
+                        ScheduleField areaField = newAtticSched.Definition.AddField(ScheduleFieldType.Instance, areaFieldId);
+                        areaField.IsHidden = false;
+                        areaField.ColumnHeading = "Area";
+                        areaField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                        areaField.HorizontalAlignment = ScheduleHorizontalAlignment.Center;
+                        areaField.DisplayType = ScheduleFieldDisplayType.Totals;
+
+                        FormatOptions formatOpts = new FormatOptions();
+                        formatOpts.UseDefault = false;
+                        formatOpts.SetUnitTypeId(UnitTypeId.SquareFeet);
+                        formatOpts.SetSymbolTypeId(SymbolTypeId.Sf);
+
+                        areaField.SetFormatOptions(formatOpts);
+
+                        ScheduleField ratioField = newAtticSched.Definition.AddField(ScheduleFieldType.Instance, ratioFieldId);
+                        ratioField.IsHidden = true;
+                    }
+                    else
+                    {
+                        // get the element Id of the fields to be used in the schedule
+                        ElementId areaFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.ROOM_AREA);
+                        ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "150 Ratio");
+                    }
+
                 }
 
+
+
+
+
                 
-
-                    
-
-
-
-                            Area areaAttic1 = curDoc.Create.NewArea(areaAttic, insPoint);
-                            areaAttic1.Number = "1";
-                            areaAttic1.Name = "Attic 1";
-
-                            Area areaAttic2 = curDoc.Create.NewArea(areaAttic, insPoint);
-                            areaAttic2.Number = "2";
-                            areaAttic2.Name = "Attic 2";}
-                        }
-
-                        // if the attic area plans exist, create the schedule
-
-                        // get the area scheme for the schedule
-                        AreaScheme curAreaScheme = Utils.GetAreaSchemeByName(curDoc, Globals.ElevDesignation + " Roof Ventilation");
-
-                        // create the new schedule
-                        ViewSchedule newAtticSched = Utils.CreateAreaSchedule(curDoc, 
-                            "Roof Ventilation Calculations - Elevation " + Globals.ElevDesignation, curAreaScheme);
 
                     if (typeAttic == "Single")
                     {
