@@ -750,7 +750,7 @@ namespace CreateSchedules
                     ViewSchedule newAtticSched = Utils.CreateAreaSchedule(curDoc, "Roof Ventilation Calculations - Elevation " + Globals.ElevDesignation, atticAreaScheme);
                     newAtticSched.ViewTemplateId = vtAtticSched.Id;
 
-                    if (typeAttic == "Multiple")
+                    if (typeAttic == "Multi-Space")
                     {
                         // get the element Id of the fields to be used in the schedule
                         ElementId nameFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.ROOM_NAME);
@@ -766,7 +766,7 @@ namespace CreateSchedules
 
                         ScheduleField areaField = newAtticSched.Definition.AddField(ScheduleFieldType.Instance, areaFieldId);
                         areaField.IsHidden = false;
-                        areaField.ColumnHeading = "Area";
+                        areaField.ColumnHeading = "Attic Area";
                         areaField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
                         areaField.HorizontalAlignment = ScheduleHorizontalAlignment.Center;
                         areaField.DisplayType = ScheduleFieldDisplayType.Totals;
@@ -785,15 +785,60 @@ namespace CreateSchedules
                     {
                         // get the element Id of the fields to be used in the schedule
                         ElementId areaFieldId = Utils.GetBuiltInParameterId(curDoc, BuiltInCategory.OST_Areas, BuiltInParameter.ROOM_AREA);
-                        ElementId catFieldId = Utils.GetProjectParameterId(curDoc, "150 Ratio");
+                        ElementId ratioFieldId = Utils.GetProjectParameterId(curDoc, "150 Ratio");
+
+                        // create the fields & set the formatting properties                        
+                        ScheduleField areaField = newAtticSched.Definition.AddField(ScheduleFieldType.Instance, areaFieldId);
+                        areaField.IsHidden = false;
+                        areaField.ColumnHeading = "Attic Area";
+                        areaField.HeadingOrientation = ScheduleHeadingOrientation.Horizontal;
+                        areaField.HorizontalAlignment = ScheduleHorizontalAlignment.Center;
+                        areaField.DisplayType = ScheduleFieldDisplayType.Totals;
+
+                        FormatOptions formatOpts = new FormatOptions();
+                        formatOpts.UseDefault = false;
+                        formatOpts.SetUnitTypeId(UnitTypeId.SquareFeet);
+                        formatOpts.SetSymbolTypeId(SymbolTypeId.Sf);
+
+                        areaField.SetFormatOptions(formatOpts);
+
+                        ScheduleField ratioField = newAtticSched.Definition.AddField(ScheduleFieldType.Instance, ratioFieldId);
+                        ratioField.IsHidden = true;
+                    }
+
+                    #endregion
+
+                    #region Roof Ventilation Equipment
+
+                    // search for equipement schedule
+                    ViewSchedule equipmentSched = Utils.GetScheduleByNameContains(curDoc, "Roof Ventilation Equipment - Elevation " + Globals.ElevDesignation);
+
+                    // if not found, create it
+                    if (chbAtticResult == true &&  equipmentSched == null)
+                    {
+                        Utils.DuplicateAndConfigureEquipmentSchedule(curDoc);
                     }
 
                     #endregion
                 }
+
                 #endregion
 
                 t.Commit();
             }
+
+            // alert the user
+            // if null, warn the user & exit the command
+            TaskDialog tdSchedSuccess = new TaskDialog("Complete");
+            tdSchedSuccess.MainIcon = TaskDialogIcon.TaskDialogIconInformation;
+            tdSchedSuccess.Title = "Create Schedules";
+            tdSchedSuccess.TitleAutoPrefix = false;
+            tdSchedSuccess.MainContent = "The specified schedules have been created. However, the API is not capable of setting the Design Option or adding calculated paramters. " +
+                "The Design Option for the Exterior Veneer Calculations and the Roof Ventilation Equipment schedules will need to be set manually. Also," +
+                "the calculated parameters, Ratio & Required Free Ventilation Area, for the Roof Ventilation Calculaitons schedule will need to be added.";
+            tdSchedSuccess.CommonButtons = TaskDialogCommonButtons.Close;
+
+            TaskDialogResult tdSchedSuccessRes = tdSchedSuccess.Show();
 
             return Result.Succeeded;
         }
