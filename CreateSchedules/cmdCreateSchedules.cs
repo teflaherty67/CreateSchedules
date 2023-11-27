@@ -727,8 +727,8 @@ namespace CreateSchedules
                             // add these areas
                             List<clsAreaData> areasAttic = new List<clsAreaData>()
                             {
-                                new clsAreaData("1", "Attic 1", "", ""),
-                                new clsAreaData("2", "Attic 2", "", "")
+                                new clsAreaData("1", "Attic 1", 0),
+                                new clsAreaData("2", "Attic 2", 0)
                             };
                             foreach (var areaInfo in areasAttic)
                             {

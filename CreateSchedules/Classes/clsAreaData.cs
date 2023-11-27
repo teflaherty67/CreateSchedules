@@ -12,6 +12,7 @@ namespace CreateSchedules
         public string Name { get; set; }
         public string Category { get; set; }
         public string Comments { get; set; }
+        public int Ratio { get; set; }
 
         public clsAreaData(string number, string name, string category, string comments)
         {
@@ -19,11 +20,13 @@ namespace CreateSchedules
             Name = name;
             Category = category;
             Comments = comments;
+            Ratio = 99;
         }
-        public clsAreaData(string number, string name)
+        public clsAreaData(string number, string name, int ratio)
         {
             Number = number;
-            Name = name;           
+            Name = name;
+            Ratio = ratio;
         }
     }
 }

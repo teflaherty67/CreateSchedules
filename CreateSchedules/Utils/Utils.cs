@@ -2,6 +2,7 @@
 using Autodesk.Revit.UI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -109,12 +110,12 @@ namespace CreateSchedules
         {
             List<Level> levels = GetAllLevels(doc);
 
-            Level returnLevel = null;
-
             foreach (Level curLevel in levels)
             {
+                Debug.Print(curLevel.Name);
+                
                 if (curLevel.Name.Equals(levelName))
-                    return returnLevel;
+                    return curLevel;
             }
 
             return null;
@@ -547,6 +548,11 @@ namespace CreateSchedules
 
             XYZ tagOffset = new XYZ(0, 8, 0);
             tagInsert = tagInsert.Subtract(tagOffset);
+
+            if (areaInfo.Ratio != 99)
+            {
+                curArea.LookupParameter("150 Ratio").Set(areaInfo.Ratio);
+            }
         }
 
         #endregion
